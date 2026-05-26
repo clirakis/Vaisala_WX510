@@ -1,0 +1,68 @@
+SN E4150001
+
+# PGM-E-DECODE: Message recieved not R messge.
+2018-07-07 08:05:44.892864::0R0,Dm=000#,Sm=0.0#,Ta=20.6C,Ua=56.4P,Pa=1.0141B,Rc=0.00M,Th=20.5C,Vh=13.5N
+Dm - Wind direction average - error
+Sm - Wind speed average - error
+Ta - Air Temperature
+Ua - Relative Humidity
+Pa - Air pressure
+Rc - Rain accumulation
+Th - Heating temperature
+Vh - Heating voltage
+
+# PGM-D-DECODE:2018-07-07 08:05:44.892906 input: 0R0,Dm=000#,Sm=0.0#,Ta=20.6C,Ua=56.4P,Pa=1.0141B,Rc=0.00M,Th=20.5C,Vh=13.5N
+
+2018-07-07 08:05:49.892749::0R0,Dm=000#,Sm=0.0#,Ta=20.6C,Ua=56.4P,Pa=1.0141B,Rc=0.00M,Th=20.7C,Vh=13.5N
+# PGM-D-DECODE:2018-07-07 08:05:49.892800 input: 0R0,Dm=000#,Sm=0.0#,Ta=20.6C,Ua=56.4P,Pa=1.0141B,Rc=0.00M,Th=20.7C,Vh=13.5N
+
+
+SN E4150002
+# PGM-I-System Configuration -----------------
+#     Address: 0
+#     Communications: NMEA 0183 v3 polled.
+#     Test Parmeter: 0
+#     Serial Interface: RS-232
+#     Automatic interval: 5
+#     Baudrate: 0 Databits: 8 Parity : N Stop bits : 1
+#     Delay : 20
+#     Device Name : WXT520
+#     Software Version : 2.14
+#---------------------------------------------
+
+
+2018-07-07 08:22:25.504330::$WIXDR,A,000,#,1,A,000,#,2,S,0.1,#,1,S,0.1,#,2,C,68.5,F,0,H,57.6,P,0,P,29.94,I,0,V,0.000,I,0,Z,0,s,0,R,0.00,I,0,V,0,I,1,Z,0,s,1,R,0,I,1,R,0.00,I,2,R,0,I,3,C,67.1,F,2,U,13.5,N,0,U,13.9,V,1,U,3.497,V,2*77
+# PGM-D-DECODE:2018-07-07 08:22:25.504372 
+
+input: $WIXDR,A,000,#,1,A,000,#,2,S,0.1,#,1,S,0.1,#,2,C,68.5,F,0,H,57.6,P,0,P,29.94,I,0,V,0.000,I,0,Z,0,s,0,R,0.00,I,0,V,0,I,1,Z,0,s,1,R,0,I,1,R,0.00,I,2,R,0,I,3,C,67.1,F,2,U,13.5,N,0,U,13.9,V,1,U,3.497,V,2*77
+
+$WIXDR,
+
+Wind sensor data
+A,000,#,1, - averge wind direction 
+A,000,#,2, - max wind direction 
+S,0.1,#,1, - average wind speed
+S,0.1,#,2, - max wind speed
+
+P,T, and RH data
+C,68.5,F,0, - Temperature
+H,57.6,P,0, - Humidity
+P,29.94,I,0,- Pressure
+
+V,0.000,I,0, - Accumulated rain fall
+Z,0,s,0,     - Rain Duration 
+R,0.00,I,0,  - Rain intensity
+V,0,I,1,     - Hail accumulation
+Z,0,s,1,     - Hail duration 
+R,0,I,1,     - hail intenisty
+R,0.00,I,2,  - rain peak intensity
+R,0,I,3,     - hail peak intensity
+
+Supervisor Data
+C,67.1,F,2,  - heating temperature
+U,13.5,N,0,  - heating voltage
+U,13.9,V,1,  - Supply voltage
+U,3.497,V,2  - reference voltage
+*77
+
+mounting kit 212792

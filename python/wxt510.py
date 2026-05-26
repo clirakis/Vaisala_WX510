@@ -1,0 +1,905 @@
+ # ================================================================
+ #
+ # Module Name : wxt510.py
+ #
+ # Author/Date : C.B. Lirakis / 24-Jun-12
+ #
+ # Description : python interface to Vaisala weather station. 
+ #
+ # Restrictions/Limitations : 
+ #
+ # Change Descriptions :
+ #
+ # Classification : Unclassified
+ #
+ # References :
+ #
+ #
+ #    Modified    By    Reason
+ #    --------    --    ------
+ #
+ # ================================================================
+import sys 
+import os
+import string
+import atexit
+import datetime
+import time
+
+class WValue:
+    """
+    Weather value.
+    """
+    def __init__(self, name):
+        self.Zero()
+        self.Name = name
+        
+    def Zero(self):
+        """
+        Zero the variables
+        """
+        self.Name    = 'None'
+        self.Minimum = 0.0
+        self.MinUnit = 'X'
+        self.Maximum = 0.0
+        self.MaxUnit = 'X'
+        self.Average = 0.0
+        self.AvgUnit = 'X'
+        self.Error   = 0
+        
+    def GetString(self):
+        return self.Name + ', Average: ' + str(self.Average) + ' ' + self.AvgUnit + ', Minimum: ' + str(self.Minimum) + ' ' + self.MinUnit + ', Maximum: ' + str(self.Maximum) + ' ' + self.MaxUnit + ', Error: ' + str(self.Error)
+
+    def Fill(self, Avg, Min, Max):
+        self.Error = 0
+        self.Minimum = Min
+        self.Maximum = Max
+        self.Average = Avg
+
+class Precipitation:
+    """
+    Precipitation value class
+    """
+    def __init__(self,name):
+        self.Zero()
+        self.Name = name
+        
+    def Zero(self):
+        """
+        Zero the variables
+        """
+        self.Name          = 'None'
+        self.Accumulation  = 0.0
+        self.Duration      = 0.0
+        self.Intensity     = 0.0
+        self.PeakIntensity = 0.0
+        self.Error         = 0
+        
+    def GetString(self):
+        return self.Name + ' Accumulation: ' + str(self.Accumulation) + ' Duration: ' + str(self.Duration) + ' Intensity: ' + str(self.Intensity) + ' Peak Intensity: ' + str(self.PeakIntensity) + ' Error: ' + str(self.Error)
+
+class FactoryG:
+    """
+    General factory presets. Response to XF
+    """
+    def __init__(self):
+        self.Zero()
+
+    def Zero(self):
+        self.options    = 'NONE'
+        self.OrderCode  = 'NONE'
+        self.CalDate    = 'NONE'
+        self.Info       = 'NONE'
+        self.Serial     = 'NONE'
+        self.VRef1      = 0.0
+        self.VRef2      = 0.0
+        
+    def Decode(self, string) :
+        """
+        Decode XF response - this is the factory settings
+        Example response:
+        0XF!0XF,f=11111111&11100010,o=AAC1DB1A,c=A263,i=HEL___,n=A3430012,2=2528,3=3512 <
+        @param string - input string received.
+        """
+        # now get the individual values.
+        # Factory Options
+        if string.find("f=")>0 :
+            self.options = string.split("f=")[1].split(",")[0]
+
+        # Order code
+        if string.find("o=")>0 :
+            self.OrderCode = string.split("o=")[1].split(",")[0]
+
+        # Cal date
+        if string.find("c=")>0 :
+            self.CalDate = string.split("c=")[1].split(",")[0]
+            
+        # Info
+        if string.find("i=")>0 :
+            self.Info = string.split("i=")[1].split(",")[0]
+            
+        # Device S/N
+        if string.find("n=")>0 :
+            self.Serial = string.split("n=")[1].split(",")[0]
+            
+        # 
+        if string.find("2=")>0 :
+            self.VRef1 = float(string.split("2=")[1].split(",")[0])/1000.0
+            
+        # 
+        if string.find("3=")>0 :
+            self.VRef2 = int(string.split("3=")[1].split(",")[0])/100.0
+            
+    def LogData(self, logfile):
+        """
+        Log the General Unit Settings.
+        """
+        logfile.write( '# PGM-I-System General Unit Settings----------\n')
+        logfile.write( '#     Options: ' + self.options +'\n')
+        logfile.write( '#     Order Code: ' + self.OrderCode + '\n')
+        logfile.write( '#     Calibration Date: ' + self.CalDate + '\n')
+        logfile.write( '#     Info: ' + self.Info + '\n')
+        logfile.write( '#     Serial: ' + self.Serial + '\n')
+        logfile.write( '#     2.5V reference: ' + str(self.VRef1) + '\n')
+        logfile.write( '#     3.5V reference: ' + str(self.VRef2) + '\n')
+
+class wxt510:
+    def __init__(self):
+        """
+        Perform all initialization. Zero all declared variables for starters.
+        @return a fully qualified self.
+        """
+        self.PythonVersion = 1.0
+        self.Zero()
+
+    def Zero(self):
+        """
+        Zero the internal variables.
+        """
+        self.Temperature       = 0
+        self.Pressure          = 0
+        self.Humidity          = 0
+        self.WindSpeed         = WValue('WindSpeed')
+        self.WindDirection     = WValue('WindDirection')
+
+
+        self.HeatT             = 0
+        self.HeatV             = 0
+        self.Vsupply           = 0
+        self.Vref              = 0
+
+        self.Rain_accumulation  = 0.0
+        self.Rain_duration      = 0.0
+        self.Rain_intensity     = 0.0
+        self.Hail_accumulation  = 0.0
+        self.Hail_duration      = 0.0
+        self.Hail_intensity     = 0.0
+
+        self.Rain_PeakIntensity = 0.0
+        self.Hail_PeakIntensity = 0.0
+
+        self.Composite          = 0
+
+        self.FullCycle          = 0
+        self.Debug              = True
+        self.LogDecode          = 0
+        self.Address            = 0
+        self.Error              = 0
+
+        # return values for XU message
+        self.A                  = 0
+        self.M                  = 'P'
+        self.T                  = 0
+        self.C                  = 0
+        self.I                  = 0
+        self.Baud               = 0
+        self.DBits              = 0
+        self.Parity             = 'N'
+        self.Stop               = 0
+        self.Delay              = 0
+        self.Name               = 'NONE'
+        self.Version            = 'NONE'
+
+        # return values for XF message
+        self.factory            = FactoryG()
+
+
+    def SetLogfile(self, log) :
+        """
+        set the logfile value to the appropriate output device
+        @param log - the logfile handle to use internally
+        """
+        self.logfile = log
+        self.Error   = 0
+        self.logfile.write('# PGM-I-FILE: WXT510, Version: ' + str(self.PythonVersion) + '\n')
+        
+    def GetValue(self, string) :
+        """
+        return the floating point value as well as the units.
+        @param string - input string to parse into individual elements
+        @return the floating point value and associated units. 
+        """
+        string = string.replace('\r\n', '')
+
+        result = string.split('=')
+        x      = result[1]
+        y      = x[0:len(x)-1]
+        unit   = x[len(x)-1:len(x)];
+        if unit.find('#')>0 :
+            self.Error = 1
+        else :
+            self.Error = 0
+            
+        return [float(y),unit]
+
+    def Command(self, command, serial):
+        """
+        Setup a command for send. also receive the result.
+        serial - handle to serial device created elsewhere.
+        @param command - a string command to send
+        @param serial - a handle to the serial port opened elsewhere
+        """
+        toSend = command + "\r\n"
+        if self.Debug:
+            self.logfile.write("# PGM-D-SEND: Command: " + toSend)
+        serial.write(toSend.encode())
+        serial.flushOutput()
+
+    def Query(self, command, serial):
+        """
+        Send a command then dwell until the query is satisfied.
+        command is just the letters, the addres is provided.
+        @param command - the string command to send to the device
+        @param serial - the handle to the serial port created elsewhere
+        @return - the resulting return value. 
+        """
+        self.Error = 0
+
+        query=str(self.Address)+command
+        if self.Debug:
+            self.logfile.write("# PGM-I-QUERY: " + query +"\n")
+        self.Command(query, serial)
+        
+        count = 0
+        while count<10:
+            #print("Query : ",count)
+            val = str(serial.readline())
+            if len(val) > 3 :
+                # does the string contain the query?
+                if val.find(query[0:2]) > -1 :
+                    if self.Debug:
+                        self.logfile.write("# PGM-D-QUERY: reply: " + val +"\n")
+                    return val
+                # only fall through a finite number of times
+                # this is failing on the XF! command. the !
+                # screws it up.
+#            elif (len(val)>0):
+#                print("Query response: ", val)
+                
+            count = count + 1
+        if (count>9):
+              self.logfile.write("# PGM-E-QUERY: fallthrough: " + query)
+        self.Error = 1
+        return 'NONE'
+
+    def QueryConfiguration(self, serial):
+        """
+        Query using the XU command, the device configuration.'
+        @param serial - the handle to the serial port created elsewhere
+        """
+        
+        if (self.M=='S') or (self.M=='R'):
+            CommandValue='XXU!'
+        else:
+            CommandValue='XU'
+            
+        rv = self.Query(CommandValue, serial)
+
+        if (rv.find('XU') > 0) and (len(rv)>4):
+            self.DecodeXU(rv)
+            self.LogConfiguration()
+        else:
+            self.logfile.write('# PGM-E-QUERY: Query empty\n')
+
+    def QueryGeneralUnit(self, serial):
+        """
+        Query using the command XF, the basic factory settings.
+        """
+        rv = self.Query('XF!', serial)
+        if (rv.find('XF') > 0) and (len(rv)>4):
+            #self.factory.Decode(rv)   FIXME
+            self.factory.LogData(self.logfile)
+        else:
+            self.logfile.write('# PGM-E-QUERY: XF failed.\n')
+
+    def SetAutomaticInterval(self, seconds, serial):
+        """
+        Change the automatic interval value.
+        @param - seconds between automatic updates.
+        @param - serial - the handle to the serial port created elsewhere
+        """
+        
+        # need to use query command, this has a response. 
+        SetValue = 'XU,I='+str(seconds)
+        rv = self.Query(SetValue,serial)
+        if rv.find('XU') > -1:
+            self.I = seconds
+        
+    def SetProtocol(self, Protocol, serial):
+        """
+        Set the communications protocol.
+        @param - Protocol, accepted values are:
+            A = ASCII, automatic
+            a = ASCII, automatic with CRC
+            P = ASCII, polled
+            p = ASCII, polled, with CRC
+            N = NMEA 0183 v3.0, automatic
+            Q = NMEA 0183 v3.0, query (= polled)
+            S = SDI-12 v1.3
+            R = SDI-12 v1.3 continuous measurement
+            
+        @param - serial - the handle to the serial port created elsewhere
+        """
+        self.Error = 0
+        if len(Protocol)>1:
+            self.Error = 1
+            return
+        if (Protocol=='A') or (Protocol=='a') or (Protocol=='P') or (Protocol=='p') or (Protocol=='N') or (Protocol=='Q') or (Protocol=='S') or (Protocol=='R') :
+            if (self.M=='S') or (self.M=='R'):
+                SetValue='XXU,M='+Protocol+'!'
+            else:
+                SetValue = 'XU,M='+Protocol
+                
+            rv = self.Query(SetValue,serial)
+            if rv.find('XU')>-1:
+                self.M = Protocol
+            else:
+                self.logfile.write("# PGM-E-PROTOCOL: Error setting Protocol.\n")
+        else:
+            self.Error = 1
+
+    def CheckForResponse(self, serial):
+        """
+        Check the serial port for response if any.
+        return True on response, False on none
+        """
+        val = str(serial.readline())
+        if(len(val)>0):
+            print("Response: ", val)
+        else:
+            print("No Response.")
+            
+    def Setup(self, serial):
+        """
+        Setup - query the configuration of the system and perform resets etc
+        @param serial - the handle to the serial port created elsewhere
+        """
+
+        # Perform reset - aXZ
+        if self.Debug:
+            self.logfile.write('# PGM-I-RESET:  RESET \n')
+        self.Command('0XZ', serial)
+        time.sleep(1)
+        
+        # reset the measurement data
+        # this has no response. 
+        if self.Debug == 1 :
+            self.logfile.write('# PGM-I-RESET: RESET MEASUREMENT\n')
+        self.Command('0XZM', serial)
+        time.sleep(1)
+
+        self.SetProtocol('P',serial)
+        self.SetAutomaticInterval(5,serial)
+        self.QueryConfiguration(serial)
+        self.QueryGeneralUnit(serial)
+        
+        # Self Diagnositcs isn't quite worked out. 
+        #self.SelfDiagnostics(serial)
+
+    def SelfDiagnostics(self, serial):
+        """
+        This is an M5 command that only works with SDI-12 format.
+        @param serial - handle to serial device created elsewhere.
+        """
+        # Save previous protocol.
+        ProtocolSave = self.M
+        self.SetProtocol('S',serial)
+        rv = self.Query('M5!',serial)
+        self.logfile.write('# PGM-I-DIAG: Self Dignostics. ' + rv +'\n')
+        # return to previous value
+        self.SetProtocol(ProtocolSave,serial)
+        
+    def Configure(self, serial):
+        """
+        perform a series of setup commands to configure the unit.
+        Address is zero in all instances. 
+        @param serial - handle to serial device created elsewhere.        
+        """
+        #
+        # Configure Wind Parameters, R1
+        # R = messages, page 95 in manual
+        # I = update interval seconds
+        # A = Average time
+        # U = Speed unit: M = m/s, K = km/h, S = mph, N = knots
+        # D = Direction correction: -180 ... 180
+        # N = NMEA wind formatter
+        # F = Sampling rate: 1, 2, or 4 Hz
+        #
+        self.Command("0WU,R=1111110011111100,I=1,A=30,U=M,F=4", serial)
+        # Turn it off
+        # self.Command("0WU,I=0", serial)
+
+        # Pressure/Temperature/Humidity - R2
+        # [R] = fields to transmit - page 100
+        # [I] = Update interval: 1 ... 3600 seconds
+        # [P] = Pressure unit: H = hPa, P = Pascal, B = bar, M = mmHg, I = inHg
+        # [T] = Temperature unit: C = Celsius, F = Fahrenheit
+        #
+        self.Command("0TU,R=1111000011110000,I=5,P=B,T=C", serial);
+
+        # Precipitation - R3
+        # [R] = fields to transmit - page 104
+        # [I] = Update interval: 1 ... 3600 seconds. This interval is
+        #      valid only if the [M] field is = T
+        # [U] = Precipitation units: M = metric (accumulated rainfall in mm,
+        #       Rain duration in s, Rain intensity in mm/h)
+        #       I = imperial (the corresponding parameters in units
+        #       in, s, in/h)
+        # [S] = Units for surface hits:
+        #       M = metric (accumulated hailfall in hits/cm 2 , Hail
+        #           event duration in s, Hail intensity in hits/cm 2 h)
+        #       I = imperial (the corresponding parameters in units
+        #           hits/in 2 , s, hits/in 2 h), H = hits (hits, s, hits/h)
+        #           Changing the unit resets the precipitation counter.
+        # [M] = Autosend mode: R = precipitation on/off, C = tipping
+        #       bucket, T = time based
+        #               R = precipitation on/off: The transmitter sends a
+        #                   precipitation message 10 seconds after the first
+        #                   recognition of precipitation. Rain duration Rd
+        #                   increases in 10 s steps. Precipitation has ended
+        #                   when:
+        #                   Ri = 0. This mode is used for indication of the
+        #                   start and the end of the precipitation.
+        #                   C = tipping bucket: The transmitter sends a
+        #                       precipitation message at each unit increment
+        #                       (0.1mm/0.01 in). This simulates conventional
+        #                       tipping bucket method.
+        #                   T = time based: Transmitter sends a precipitation
+        #                       message in the intervals defined in the
+        #                       [I] field.
+        #                       However, in polled protocols the autosend mode
+        #                       tipping bucket should not be used as in it the
+        #                       resolution of the output is decreased
+        #                       (quantized to tipping bucket tips).
+        # [Z] = Counter reset: M = manual, A = automatic, Y = immediate
+        #       Sets both rain/hail accumulation count and duration
+        #       of the rain/hail event to zero.
+        #       M = manual reset mode: The counter is reset with
+        #       aXZRU command only, see Precipitation Counter
+        #       Reset (aXZRU) on page 54.
+        #       A = automatic reset mode: The counts are reset after
+        #       each precipitation message whether in automatic
+        #       mode or when polled.
+        #       Y = immediate reset: The counts are reset
+        #       immediately after receiving the command.
+        self.Command("0RU,R=1111110011111100,I=2,U=M,S=M,M=R,Z=A", serial)
+
+        # Supervisor data - R5
+        # [R] - fields to send, page 109
+        # [I] = Update interval: 1 ... 3600 seconds. When the
+        #       heating is enabled the update interval is forced to 15
+        #       seconds.
+        # [S] = Error messaging: Y = enabled, N = disabled
+        # [H] = Heating control enable: Y = enabled, N = disabled
+        #       Heating enabled: The control between full and half
+        #       heating power is on as described in Heating
+        #       (Optional) on page 24.
+        #       Heating disabled: Heating is off in all conditions.
+        self.Command("0SU,R=1111000011110000,I=120,S=Y,H=Y", serial)
+
+    def PrecipitationReset(self, serial):
+        """
+        Reset the various parts of the Precitpitation system
+        """
+        # Precipitation Counter Reset
+        self.Command("0XZRU", serial)
+        
+        # Precipitation Intensity Reset
+        self.Command("0XZRI", serial)
+
+    def SupervisorECNo(self, serial):
+        self.logfile.write('# PGM-I-DIAG: Supervisor ECNo\n')
+        self.Command("0SU,S=N", serial)
+        
+    def CheckSupervisor(self, serial):
+        self.logfile.write('# PGM-I-DIAG: Check supervisor\n')
+        rv = self.Query('SU',serial)
+        self.logfile.write('# PGM-I-DIAG: result ' + rv +'\n')
+        
+    def Decode(self, string, logfile) :
+        """
+        Decode an entire string. Look at the address and R value
+        and deterime which message it is and try to decode it
+        appropriately.
+        """
+
+        # typical strings
+        # 0R5,Th=22.4C,Vh=15.0N,Vs=15.3V,Vr=3.522V
+        # Th - heating temperature
+        # Vh - heating voltage
+        # Vs - Supply voltage
+        # Vr - 3.5V reference voltage. 
+        # 
+        # 0R2,Ta=21.0C,Ua=60.8P,Pa=1007.2H
+        # Ta - Air temperature
+        # Ua - Relative humidity
+        # Pa - Air pressure
+        #
+        # 0R1,Dn=000#,Dm=000#,Dx=000#,Sn=0.0#,Sm=0.0#,Sx=0.0#
+        # Dn - Wind direction minimum degrees
+        # Dm - Wind direction average
+        # Dx - Wind direction maximum
+        # Sn - Wind speed minimum
+        # Sm - Wind speed average
+        # Sx - Wind speed maximum
+        #
+        # message format: aRx data <cr><lf>
+        # a  - device address, used in multidrop situation
+        # R1 - Wind message
+        # R2 - Pressure, Temperature and Humidity
+        # R3 - Precipitation message
+        # R5 - Supervisor message
+        
+        # When debug is on, output the string and time.
+
+        if self.Debug==1 :
+            now = datetime.datetime.now()
+            #print str(now)+': '+string
+            logfile.write('# PGM-D-DECODE:' + str(now) + ' input: ' + string)
+            logfile.write('\n')
+        
+        if string.find('error') > 0 :
+            logfile.write('# PGM-E-ERROR: ' + string)
+            return
+
+        if string[1] == 'R' :
+             # life is good, perhaps, might be a response to XU
+             if string[2] == '=' :
+                 return
+             message = int(string[2])
+        else :
+            self.logfile.write('# PGM-E-DECODE: Message recieved not R messge.')
+            return
+
+        address = int(string[0])
+
+        if message==0:
+            self.DecodeR0(string)
+            if (self.LogDecode > 0):
+                self.LogData(logfile)
+        elif message == 1 :
+            self.DecodeR1(string)
+            self.FullCycle = 1
+            if (self.LogDecode > 0):
+                self.LogData(logfile)
+        elif message == 2 :
+            self.DecodeR2(string)
+        elif message == 3 :
+            self.DecodeR3(string)
+        elif message == 5 :
+            self.DecodeR5(string)
+        else :
+            self.logfile.write('# PGM-E-BADMESSAGE: Message not understood.\n')
+            
+    def DecodeR0(self, string):
+        """
+        Decode R0 (compsite) message.
+        @param string to decode.
+        """
+        self.Composite = 1
+        result = string.split(',')
+
+        # loop over the results and then parse them into the correct fields.
+        # see abbreviation table on page 57
+        # Example string:
+        # 0R0,Dm=000#,Dx=000#,Sm=0.1#,Sx=0.1#,Ta=65.8F,Ua=60.1P,Pa=29.56I,Rc=0.000I,Rd=0s,Ri=0.00I,Hc=0I,Hd=0s,Hi=0I,Rp=0.00I,Hp=0I,Th=65.1F,Vh=13.7N,Vs=14.0V,Vr=3.496V
+# Program ends.
+
+        for i in range(len(result)):
+            if result[i].find('Dm')>-1 :
+                # Wind direction average
+                [self.WindSpeed.Average,self.WindSpeed.AvgUnit] = self.GetValue(result[i])
+            elif result[i].find('Dx')>-1:
+                # Wind direction maximum
+                [self.WindSpeed.Maximum,self.WindSpeed.MaxUnit] = self.GetValue(result[i])
+            elif result[i].find('Sm')>-1:
+                # Wind speed average
+                [self.WindDirection.Average,self.WindDirection.AvgUnit] = self.GetValue(result[i])
+            elif result[i].find('Sx')>-1:
+                # Wind speed maximum
+                [self.WindDirection.Maximum,self.WindDirection.MaxUnit] = self.GetValue(result[i])
+            elif result[i].find('Ta')>-1:
+                # Air temperature
+                [self.Temperature,u] = self.GetValue(result[i])
+            elif result[i].find('Ua')>-1:
+                # Relative humidity
+                [self.Humidity,u] = self.GetValue(result[i])
+            elif result[i].find('Pa')>-1:
+                # Air pressure
+                [self.Pressure,u] = self.GetValue(result[i])
+            elif result[i].find('Rc')>-1:
+                # Rain accumulation
+                [self.Rain_accumulation,u] = self.GetValue(result[i])
+            elif result[i].find('Rd')>-1:
+                # Rain duration
+                [self.Rain_duration,u] = self.GetValue(result[i])
+            elif result[i].find('Ri')>-1:
+                # Rain intensity
+                [self.Rain_intensity,u] = self.GetValue(result[i])
+            elif result[i].find('Hc')>-1:
+                # Hail accumulation
+                [self.Hail_accumulation,u] = self.GetValue(result[i])
+            elif result[i].find('Hd')>-1:
+                # Hail duration
+                [self.Hail_duration,u] = self.GetValue(result[i])
+            elif result[i].find('Hi')>-1:
+                # Hail intensity
+                [self.Hail_intensity,u] = self.GetValue(result[i])
+            elif result[i].find('Rp')>-1:
+                # Rain peak intensity
+                [self.Rain_PeakIntensity,u] = self.GetValue(result[i])
+            elif result[i].find('Hp')>-1:
+                # Hail peak intensity
+                [self.Hail_PeakIntensity,u] = self.GetValue(result[i])
+            elif result[i].find('Th')>-1:
+                # Heating temperature
+                [self.HeatT,u] = self.GetValue(result[i])
+            elif result[i].find('Vh')>-1:
+                # Heating voltage
+                [self.HeatV,u] = self.GetValue(result[i])
+            elif result[i].find('Vs')>-1:
+                # Supply Voltage
+                [self.Vsupply,u] = self.GetValue(result[i])
+            elif result[i].find('Vr')>-1:
+                # 3.5V reference value
+                [self.Vref,u] = self.GetValue(result[i])
+
+        
+    def DecodeR1(self, string) :
+        """
+        Decode the wind speed data.
+        @param string - input string to parse. 
+        """
+        # 0R1,Dn=000#,Dm=000#,Dx=000#,Sn=0.0#,Sm=0.0#,Sx=0.0#
+        # Dn - Wind direction minimum degrees
+        # Dm - Wind direction average
+        # Dx - Wind direction maximum
+        # Sn - Wind speed minimum
+        # Sm - Wind speed average
+        # Sx - Wind speed maximum
+        result = string.split(',')
+        if len(result) > 5 :
+            [self.WindDirection.Minimum,self.WindDirection.MinUnit] = self.GetValue(result[1])
+            [self.WindDirection.Average,self.WindDirection.AvgUnit] = self.GetValue(result[2])
+            [self.WindDirection.Maximum,self.WindDirection.MaxUnit] = self.GetValue(result[3])
+            [self.WindSpeed.Minimum,self.WindSpeed.MinUnit] = self.GetValue(result[4])
+            [self.WindSpeed.Average,self.WindSpeed.AvgUnit] = self.GetValue(result[5])
+            [self.WindSpeed.Maximum,self.WindSpeed.MaxUnit] = self.GetValue(result[6])
+
+    def DecodeR2(self, string) :
+        # 0R2,Ta=21.0C,Ua=60.8P,Pa=1007.2H
+        """
+        Decode Air tempature humidity and pressure. 
+        """
+        # Ta - Air temperature
+        # Ua - Relative humidity
+        # Pa - Air pressure
+        result = string.split(',')
+        if len(result) > 2 :
+            [self.Temperature,u] = self.GetValue(result[1])
+            [self.Humidity,u]    = self.GetValue(result[2])
+            [self.Pressure,u]    = self.GetValue(result[3])
+
+    def DecodeR3(self, string) :
+        """
+        Decode the rain data.
+        """
+        # 0R3
+        # Rc Rain accumulation, M = mm
+        # Rd Rain duration seconds
+        # Ri Rain intensity M = mm/h
+        # He Hail Accumulation M = hits/cm2
+        # Hd Hail duration seconds
+        # Hi Hail intensity hits/cm2/h
+        # Rp Peak rain intenisty mm/h
+        # Hp Peak hail intensity hits/cm2/h
+        result = string.split(',')
+
+        # how many items are in the parse?
+        n = len(result)
+
+        if n > 5 :
+            [self.Rain_accumulation,u] = self.GetValue(result[1])
+            [self.Rain_duration,u]     = self.GetValue(result[2])
+            [self.Rain_intensity,u]    = self.GetValue(result[3])
+            [self.Hail_accumulation,u] = self.GetValue(result[4])
+            [self.Hail_duration,u]     = self.GetValue(result[5])
+            [self.Hail_intensity,u]    = self.GetValue(result[6])
+
+        if n>7 :
+            [self.Rain_PeakIntensity,u]    = self.GetValue(result[7])
+            [self.Hail_PeakIntensity,u]    = self.GetValue(result[8])
+
+    def DecodeR5(self, string) :
+        """
+        Decode the supervisor message. Looks something like:
+            0R5,Th=20.2C,Vh=13.7N,Vs=14.0V,Vr=3.497V
+            0R5,Th=22.4C,Vh=15.0N,Vs=15.3V,Vr=3.522V
+            
+        Th - heating temperature
+        Vh - heating voltage
+        Vs - Supply voltage
+        Vr - 3.5V reference voltage.
+        """
+        result = string.split(',')
+        if len(result) > 3 : 
+            [self.HeatT,u]   = self.GetValue(result[1])
+            [self.HeatV,u]   = self.GetValue(result[2])
+            [self.Vsupply,u] = self.GetValue(result[3])
+            [self.Vref,u]    = self.GetValue(result[4])
+
+    def DecodeXU(self, string) :
+        """
+        Decode XU response - this is the communications setup response.
+        Example response:
+        0XU,A=0,M=Q,T=0,C=2,I=5,B=19200,D=8,P=N,S=1,L=20,N=WXT520,V=2.14
+        @param string - input string received.
+        """
+        # now get the individual values.
+        # Address
+        if string.find("A=")>0 :
+            self.A = int(string.split("A=")[1].split(",")[0])
+
+        # Communications protocol
+        if string.find("M=")>0 :
+            self.M = string.split("M=")[1].split(",")[0]
+
+        # Test parameter
+        if string.find("T=")>0 :
+            self.T = int(string.split("T=")[1].split(",")[0])
+            
+        # Serial interface type
+        if string.find("C=")>0 :
+            self.C = int(string.split("C=")[1].split(",")[0])
+            
+        # Interval for composite data
+        if string.find("I=")>0 :
+            self.I = int(string.split("I=")[1].split(",")[0])
+            
+        # 
+        if string.find("B=")>0 :
+            self.Baud = int(string.split("=")[1].split(",")[0])
+            
+        # 
+        if string.find("D=")>0 :
+            self.DBits = int(string.split("D=")[1].split(",")[0])
+            
+        # 
+        if string.find("P=")>0 :
+            self.Parity = string.split("P=")[1].split(",")[0]
+            
+        # 
+        if string.find("S=")>0 :
+            self.Stop = int(string.split("S=")[1].split(",")[0])
+            
+        # 
+        if string.find("L=")>0 :
+            self.Delay = string.split("L=")[1].split(",")[0]
+            
+        # 
+        if string.find("N=")>0 :
+            self.Name = string.split("N=")[1].split(",")[0]
+            
+        if string.find("V=")>0 :
+            self.Version = string.split("V=")[1].split(",")[0]
+            
+
+            
+
+    def IsComplete(self) :
+        if self.FullCycle == 1 :
+            self.FullCycle = 0
+            return 1
+        return 0
+    
+    def LogData(self, logfile):
+        logfile.write( '# PGM-I-LOGDATA:\n')
+        logfile.write( "#     Heating Temperature: "+str(self.HeatT)+'\n')
+        logfile.write( "#     Heating Voltage:"+str(self.HeatV)+'\n')
+        logfile.write( "#     Supply Voltage: "+str(self.Vsupply)+'\n')
+        logfile.write( "#     Reference Voltage:"+str(self.Vref)+'\n')
+        logfile.write( "#     Air Temperature: "+str(self.Temperature)+'\n')
+        logfile.write( "#     Humidity: "+str(self.Humidity)+'\n')
+        logfile.write( "#     Pressure: "+str(self.Pressure)+'\n')
+        logfile.write( '#     ' + self.WindSpeed.GetString() + '\n')
+
+        logfile.write( '#     ' + self.WindDirection.GetString() + '\n')
+
+    def Print(self) :
+        print("Heating Temperature: ", str(self.HeatT))
+        print("Heating Voltage:", str(self.HeatV))
+        print("Supply Voltage: ", str(self.Vsupply))
+        print("Reference Voltage:", str(self.Vref))
+        print("Air Temperature: ", str(self.Temperature))
+        print("Humidity: ", str(self.Humidity))
+        print("Pressure: ", str(self.Pressure))
+        print(self.WindSpeed.GetString())
+        print(self.WindDirection.GetString())
+
+    def LogConfiguration(self) :
+        """
+        Log the system configuration.
+        """
+        self.logfile.write( '# PGM-I-System Configuration -----------------\n')
+        self.logfile.write( '#     Address: ' + str(self.A)+'\n')
+
+        if self.M == 'A':
+            val = 'ASCII Automatic.'
+        elif self.M == 'a':
+            val = 'ASCII Automatic, CRC.'
+        elif self.M == 'P':
+            val = 'ASCII polled.'
+        elif self.M == 'p':
+            val = 'ASCII polled, CRC.'
+        elif self.M == 'N':
+            val = 'NMEA 0183 v3 automatic.'
+        elif self.M == 'Q':
+            val = 'NMEA 0183 v3 polled.'
+        elif self.M == 'S':
+            val = 'SDI-12'
+        elif self.M == 'R':
+            val = 'SDI-12 continious.'
+
+        self.logfile.write( '#     Communications: ' + val+'\n')
+
+        self.logfile.write( '#     Test Parmeter: ' + str(self.T) + '\n')
+        
+        if self.C == 1:
+            val = 'SDI-12'
+        elif self.C == 2:
+            val = 'RS-232'
+        elif self.C == 3:
+            val = 'RS-485'
+        elif self.C == 4:
+            val = 'RS-422'
+        else:
+            val = 'UNKNOWN'
+            
+        self.logfile.write( '#     Serial Interface: ' + val + '\n')
+
+        self.logfile.write( '#     Automatic interval: ' + str(self.I)+ '\n')
+        self.logfile.write( '#     Baudrate: ' + str(self.Baud) + ' Databits: ' + str(self.DBits) + ' Parity : ' + self.Parity + ' Stop bits : ' + str(self.Stop)+ '\n')
+        self.logfile.write( '#     Delay : ' + str(self.Delay)+ '\n')
+        self.logfile.write( '#     Device Name : ' + self.Name+ '\n')
+        self.logfile.write( '#     Software Version : ' + self.Version + '\n')
+        self.logfile.write( '#---------------------------------------------\n')
+
+
+    def __del__(self):
+        now = datetime.datetime.now()
+        self.logfile.write('# PGM-I-DESTRUCTOR ' + str(now) + '\n')
+
+
+
+def main():
+    string1 = "0R5,Th=20.9C,Vh=15.0N,Vs=15.3V,Vr=3.522V"
+    string2 = "0R2,Ta=21.0C,Ua=60.8P,Pa=1007.2H"
+    string3 = "0R1,Dn=000#,Dm=000#,Dx=000#,Sn=0.0#,Sm=0.0#,Sx=0.0#"
+
+
+    sensor = wxt510()
+    sensor.Decode(string3)
+    sensor.Print()
+
+if __name__ == '__main__':
+    main()
