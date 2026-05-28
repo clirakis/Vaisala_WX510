@@ -108,8 +108,8 @@ class Sensor:
             if (len(val) > 3):
                 #print str(i) + ' ' + val
                 now = datetime.datetime.now()
-                logstring = str(now) + '::' + val
-                self.logfile.write(logstring)
+                logstring = str(now) + '::' + val + '\n'
+                self.logfile.write(logstring) 
                 self.wxt.Decode(val, self.logfile)
         #sock.sendall(logstring)
         

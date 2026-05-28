@@ -181,7 +181,7 @@ class wxt510:
         self.Composite          = 0
 
         self.FullCycle          = 0
-        self.Debug              = True
+        self.Debug              = False
         self.LogDecode          = 0
         self.Address            = 0
         self.Error              = 0
@@ -383,7 +383,7 @@ class wxt510:
         
         # reset the measurement data
         # this has no response. 
-        if self.Debug == 1 :
+        if self.Debug:
             self.logfile.write('# PGM-I-RESET: RESET MEASUREMENT\n')
         self.Command('0XZM', serial)
         time.sleep(1)
@@ -552,7 +552,7 @@ class wxt510:
         
         # When debug is on, output the string and time.
 
-        if self.Debug==1 :
+        if self.Debug:
             now = datetime.datetime.now()
             #print str(now)+': '+string
             logfile.write('# PGM-D-DECODE:' + str(now) + ' input: ' + string)
