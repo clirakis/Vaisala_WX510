@@ -102,7 +102,7 @@ class Sensor:
         #for i in range(20):
         while(loop):
             instr = self.ser.readline()
-            val = instr.decode('utf-8).strip()
+            val = instr.decode('utf-8').strip()
             if (self.Debug):
                 self.logfile.write(val+"\n")
             
