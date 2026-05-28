@@ -563,7 +563,7 @@ class wxt510:
             logfile.write('# PGM-E-ERROR: ' + string)
             return
 
-        if if '0R' in string :
+        if '0R' in string :
              # life is good, perhaps, might be a response to XU
              message = int(string[2])
         else :
