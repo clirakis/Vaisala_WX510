@@ -98,8 +98,9 @@ class Sensor:
             self.logfile.write("# Executing Loop\n")
         self.wxt.CheckSupervisor(self.ser)
         self.wxt.SupervisorECNo(self.ser)
-        
-        for i in range(20):
+        loop = True
+        #for i in range(20):
+        while(loop):
             val = str(self.ser.readline())
             if (self.Debug):
                 self.logfile.write(val+"\n")

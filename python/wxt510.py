@@ -508,8 +508,9 @@ class wxt510:
         self.Command("0XZRI", serial)
 
     def SupervisorECNo(self, serial):
-        self.logfile.write('# PGM-I-DIAG: Supervisor ECNo\n')
+        self.logfile.write('# PGM-I-DIAG: Supervisor ECNo ')
         self.Command("0SU,S=N", serial)
+        self.logfile.write('\n')
         
     def CheckSupervisor(self, serial):
         self.logfile.write('# PGM-I-DIAG: Check supervisor\n')
@@ -562,10 +563,8 @@ class wxt510:
             logfile.write('# PGM-E-ERROR: ' + string)
             return
 
-        if string[1] == 'R' :
+        if if '0R' in string :
              # life is good, perhaps, might be a response to XU
-             if string[2] == '=' :
-                 return
              message = int(string[2])
         else :
             self.logfile.write('# PGM-E-DECODE: Message recieved not R messge.')
