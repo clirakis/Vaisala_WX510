@@ -278,7 +278,7 @@ class wxt510:
                 
             count = count + 1
         if (count>9):
-              self.logfile.write("# PGM-E-QUERY: fallthrough: " + query)
+              self.logfile.write("# PGM-E-QUERY: fallthrough: " + query + "\n")
         self.Error = 1
         return 'NONE'
 
@@ -567,7 +567,7 @@ class wxt510:
              # life is good, perhaps, might be a response to XU
              message = int(string[2])
         else :
-            self.logfile.write('# PGM-E-DECODE: Message recieved not R messge.')
+            self.logfile.write('# PGM-E-DECODE: Not R messge.\n')
             return
 
         address = int(string[0])
