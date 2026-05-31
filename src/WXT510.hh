@@ -44,7 +44,7 @@ public:
      * Errors:
      *
      */
-    void Decode(const std::string& in);
+    bool Decode(const std::string& in);
 
     /*!
      * Description: 

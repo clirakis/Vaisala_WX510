@@ -221,9 +221,15 @@ void Weather::Do(void)
 	{
 	    // A few incomplete sentances to start with. 
 	    cout << line << endl;
-	    Decode(line);
-	    cout << *this << endl;
-
+	    if(Decode(line))
+	    {
+		cout << "Decode succeeded. " << endl;
+		cout << *this << endl;
+	    }
+	    else
+	    {
+		cout << "Decode failed." << endl;
+	    }
 	}
 	sleep(1);
 	count++;

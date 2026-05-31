@@ -149,7 +149,7 @@ void WXT510::Zero(void)
  *
  *******************************************************************
  */
-void WXT510::Decode(const string &in)
+bool WXT510::Decode(const string &in)
 {
     SET_DEBUG_STACK;
     CLogger *pLog = CLogger::GetThis();
@@ -188,10 +188,12 @@ void WXT510::Decode(const string &in)
 	    break;
 	default:
 	    pLog->LogTime("Input not recognized: %s\n", in.c_str());
+	    return false;
 	    break;
 	    
 	}
     }
+    return true;
 }
 /**
  ******************************************************************
