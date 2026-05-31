@@ -187,6 +187,7 @@ int main(int argc, char **argv)
 	if (pModule->Error() == 0)
 	{
 	    pModule->TimeTag();
+#if 0
 	    cout << "R0 test" << endl;
 	    pModule->Decode(string4);
 	    cout << *pModule << endl;
@@ -202,7 +203,8 @@ int main(int argc, char **argv)
 	    pModule->Zero();
 	    pModule->Decode(string1);
 	    cout << *pModule << endl;
-	    //pModule->Do();
+#endif
+	    pModule->Do();
 	}
 
     }

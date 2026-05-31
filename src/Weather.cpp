@@ -223,6 +223,7 @@ void Weather::Do(void)
 	}
 	sleep(1);
 	count++;
+	fRun = (count<10);
     }
     SET_DEBUG_STACK;
 }
