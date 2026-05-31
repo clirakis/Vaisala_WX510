@@ -727,7 +727,7 @@ ostream& operator<<(ostream& output, const WXT510 &in)
     ns *= 1.0e-9;
 
     strftime(tmp, sizeof(tmp), "%F %T", stamp); 
-    snprintf(sns, sizeof(sns), "%.4f", ns);
+    snprintf(sns, sizeof(sns), "%.4f", ns);   //FIXME
     strncat(tmp, sns, sizeof(tmp)-strlen(tmp));
     output << "WXT510 " << tmp << endl
 	   << "           Temperature: " << in.fTemperature << endl

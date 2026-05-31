@@ -223,17 +223,15 @@ void Weather::Do(void)
 	    cout << line << endl;
 	    if(Decode(line))
 	    {
-		cout << "Decode succeeded. " << endl;
-		cout << *this << endl;
-	    }
-	    else
-	    {
-		cout << "Decode failed." << endl;
+		if(Debug(0))
+		{
+		    cout << "Decode succeeded. " << endl;
+		    cout << *this << endl;
+		}
 	    }
 	}
 	sleep(1);
 	count++;
-	fRun = (count<10);
     }
     SET_DEBUG_STACK;
 }
