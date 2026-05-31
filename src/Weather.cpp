@@ -219,7 +219,11 @@ void Weather::Do(void)
 	rc = fSerialIO->Read((unsigned char *)line, sizeof(line));
 	if (rc>0)
 	{
+	    // A few incomplete sentances to start with. 
 	    cout << line << endl;
+	    Decode(line);
+	    cout << *this << endl;
+
 	}
 	sleep(1);
 	count++;
