@@ -165,7 +165,7 @@ bool WXT510::Decode(const string &in)
      */
     string id  = in.substr(1,1);
     string id2 = in.substr(2,1);
-    string toParse = in.substr(3);
+    string toParse = in.substr(4);
     if (id == "R")
     {
 	int type = stoi(id2);
