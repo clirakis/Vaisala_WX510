@@ -16,9 +16,9 @@ TARGET = WXT510
 #
 # Compile time resolution.
 #
-INCLUDE = -I$(DRIVE)/common/utility \
+INCLUDE = -I$(DRIVE)/common/utility -I$(DRIVE)/common/iolib \
 	-I/usr/include/hdf5/serial
-LIBS = -lutility -lhdf5_cpp -lhdf5
+LIBS = -lutility -lio -lhdf5_cpp -lhdf5
 LIBS += -L$(HDF5LIB) -lconfig++
 
 

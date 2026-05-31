@@ -25,6 +25,8 @@
 #  include "filename.hh"
 #  include "WXT510.hh"
 
+class SerialIO;
+
 class Weather : public WXT510
 {
 public:
@@ -81,15 +83,18 @@ private:
     /*!
      * Logging tool, log data to HDF5 file.  
      */
-    H5Logger    *f5Logger;
+    H5Logger*    f5Logger;
 
     /*! 
      * Configuration file name. 
      */
-    char   *fConfigFileName;
+    char*        fConfigFileName;
 
     /* Collection of configuration parameters. */
-    bool   fLogging;       /*! Turn logging on. */
+    bool         fLogging;       /*! Turn logging on. */
+
+    std::string  fSerialPortName;
+    SerialIO*    fSerialIO;
 
 
     /* Private functions. ==============================  */

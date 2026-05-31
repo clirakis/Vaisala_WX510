@@ -43,6 +43,7 @@ using namespace libconfig;
 #include "CLogger.hh"
 #include "tools.h"
 #include "debug.h"
+#include "SerialIO.h"
 
 Weather* Weather::fWeather;
 
@@ -70,13 +71,16 @@ Weather* Weather::fWeather;
 Weather::Weather(const char* ConfigFile) : WXT510()
 {
     CLogger *Logger = CLogger::GetThis();
+    char msg[128];
 
     /* Store the this pointer. */
     fWeather = this;
     SetName("Weather");
     SetError(); // No error.
 
-    fRun = true;
+    fRun            = true;
+    fSerialIO       = NULL;
+    fSerialPortName = "/dev/ttyUSB1";
 
     /* 
      * Set defaults for configuration file. 
@@ -102,6 +106,24 @@ Weather::Weather(const char* ConfigFile) : WXT510()
      * Open up the serial Port 
      * for the standard startup it is 19200, 8N1
      */
+
+    fSerialIO = new SerialIO(fSerialPortName.c_str(), 
+			     B19200, 
+			     SerialIO::NONE,  
+			     SerialIO::ModeCanonical, 
+			     2, 2);
+
+    if (fSerialIO->CheckError())
+    {
+	sprintf(msg, "Error opening serial port: %s\n", 
+		fSerialPortName.c_str());
+	Logger->LogError(__FILE__,__LINE__,'F',msg);
+	SetError(SerialIO::BadOpen);
+    }
+    else
+    {
+	Logger->LogTime("Serial port: %s open.\n", fSerialPortName.c_str());
+    }
 
     /* Do any configuration needed. */
 
@@ -151,6 +173,8 @@ Weather::~Weather(void)
     }
     free(fConfigFileName);
 
+    delete fSerialIO;
+
     /* Clean up */
     delete f5Logger;
     f5Logger = NULL;
@@ -183,10 +207,22 @@ Weather::~Weather(void)
 void Weather::Do(void)
 {
     SET_DEBUG_STACK;
+    uint32_t count = 0;
+    char line[256];
+    int32_t  rc;
+
     fRun = true;
+
     while(fRun)
     {
+	memset(line, 0, sizeof(line));
+	rc = fSerialIO->Read((unsigned char *)line, sizeof(line));
+	if (rc>0)
+	{
+	    cout << line << endl;
+	}
 	sleep(1);
+	count++;
     }
     SET_DEBUG_STACK;
 }
@@ -310,12 +346,14 @@ bool Weather::ReadConfiguration(void)
     try
     {
 	int    Debug;
+
 	/*
 	 * index into group Weather
 	 */
 	const Setting &MM = root["Weather"];
 	MM.lookupValue("Logging",   fLogging);
 	MM.lookupValue("Debug",     Debug);
+	MM.lookupValue("SerPort",   fSerialPortName);
 	SetDebug(Debug);
     }
     catch(const SettingNotFoundException &nfex)
@@ -362,7 +400,8 @@ bool Weather::WriteConfiguration(void)
     // Add some settings to the configuration.
     Setting &MM = root.add("Weather", Setting::TypeGroup);
     MM.add("Debug",     Setting::TypeInt)     = 0;
-    MM.add("Logging",   Setting::TypeBoolean)     = true;
+    MM.add("Logging",   Setting::TypeBoolean) = fLogging;
+    MM.add("SerPort",   Setting::TypeString)  = fSerialPortName;
 
     // Write out the new configuration.
     try
