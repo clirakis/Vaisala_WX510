@@ -219,6 +219,7 @@ void Weather::Do(void)
 	rc = fSerialIO->Read((unsigned char *)line, sizeof(line));
 	if (rc>0)
 	{
+	    TimeTag();
 	    // A few incomplete sentances to start with. 
 	    cout << line << endl;
 	    if(Decode(line))
