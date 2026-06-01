@@ -10,9 +10,8 @@
  *
  * Change Descriptions :
  *
- * Classification : Unclassified
- *
  * References :
+ * USER'S GUIDE Vaisala Weather Transmitter WXT510 M210906EN-C
  *
  ********************************************************************/
 // System includes.

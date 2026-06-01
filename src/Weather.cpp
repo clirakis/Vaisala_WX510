@@ -127,6 +127,12 @@ Weather::Weather(const char* ConfigFile) : WXT510()
 	OpenLogFile();
     }
 
+    /*
+     * Do any setup specific to the instrument 
+     */
+    Setup();      // Perform reset 
+    Configure();  // Configure which messages are to be included and how. 
+
     Logger->Log("# Weather constructed.\n");
 
     SET_DEBUG_STACK;
@@ -300,9 +306,9 @@ bool Weather::Setup(void)
     ResetMeasurement();
     sleep(1);
 
-    SetProtocol("P");
-    SetAutomaticInterval(5);
-    QueryCommunication();
+    SetProtocol("A");         // ASCII Automatic, see manualpage 63
+    SetAutomaticInterval(5);  // 5 Seconds between messages. 
+    QueryCommunication();     // Get the status of the setups. 
     QueryGeneral();
 
     return true;
@@ -333,12 +339,13 @@ bool Weather::Configure(void)
 {
     SET_DEBUG_STACK;
     CLogger *pLog = CLogger::GetThis();
+    string cmd;
 
     pLog->LogTime(" Configure --------------\n");
     /*
      *
      * Configure Wind Parameters, R1
-     * R = messages, page 95 in manual
+     * R = messages, page 111 in manual
      * I = update interval seconds
      * A = Average time
      * U = Speed unit: M = m/s, K = km/h, S = mph, N = knots
@@ -346,9 +353,32 @@ bool Weather::Configure(void)
      * N = NMEA wind formatter
      * F = Sampling rate: 1, 2, or 4 Hz
      *
+     * bits 1-8 control R1 message
+     * bits 9-16 contorl composite message R0
+     *
+     * R Bits
+     * Left to Right
+     *  1 - Dn Direction minimum
+     *  2 - Dm Direction average
+     *  3 - Dx Direction maximum
+     *  4 - Sn Speed minimum
+     *  5 - Sm Speed average
+     *  6 - Sx Speed maximum
+     *  7 - Spare
+     *  8 - Spare
+     *  & delmiter
+     *  9 - Dn Wind direction minimum
+     * 10 - Dm Direction average
+     * 11 - Dx Direction maximum
+     * 12 - Sn Speed minimum
+     * 13 - Sm Speed average
+     * 14 - Sx Speed maximum
+     * 15 - Spare
+     * 16 - Spare 
+     * Right most
      */
-    // FIXME
-    //self.Command("0WU,R=1111110011111100,I=1,A=30,U=M,F=4", serial)
+    cmd = string("0WU,R=1111110011111100,I=1,A=30,U=M,F=4");
+    Command(cmd);
 
     /*
      * Turn it off
@@ -362,8 +392,31 @@ bool Weather::Configure(void)
      * [P] = Pressure unit: H = hPa, P = Pascal, B = bar, M = mmHg, I = inHg
      * [T] = Temperature unit: C = Celsius, F = Fahrenheit
      *
+     * R fields
+     *
+     * Left to Right
+     *  1 - Pa Air pressure
+     *  2 - Ta Air temperature
+     *  3 - Ua Air humidity
+     *  4 - Spare
+     *  5 - Spare
+     *  6 - Spare
+     *  7 - Spare
+     *  8 - Spare
+     *  & delmiter
+     *  9 - Pa Air pressure
+     * 10 - Ta Air temperature
+     * 11 - Ua Air humidity
+     * 12 - Spare
+     * 13 - Spare
+     * 14 - Spare
+     * 15 - Spare
+     * 16 - Spare 
+     * Right most
+     *
      */
-    //self.Command("0TU,R=1111000011110000,I=5,P=B,T=C", serial);
+    cmd = string("0TU,R=1111000011110000,I=5,P=B,T=C");
+    Command(cmd);
 
     /*
      * Precipitation - R3
@@ -411,8 +464,33 @@ bool Weather::Configure(void)
      *       mode or when polled.
      *       Y = immediate reset: The counts are reset
      *       immediately after receiving the command.
+     *
+     *
+     * R fields
+     *
+     * Left to Right
+     *  1 - Rc Rain amount
+     *  2 - Rd Rain duration
+     *  3 - Ri Rain intensity
+     *  4 - Hc Hail amount
+     *  5 - Hd Hail duration
+     *  6 - Hi Hail intensity
+     *  7 - Rp Rain peak
+     *  8 - Hp Hail peak
+     *  & delmiter
+     *  9 - Rc Rain amount
+     * 10 - Rd Rain duration
+     * 11 - Ri Rain intensity
+     * 12 - Hc Hail amount
+     * 13 - Hd Hail duration
+     * 14 - Hi Hail intensity
+     * 15 - Rp Rain peak
+     * 16 - Hp Hail peak
+     * Right most
+     *
      */
-    //self.Command("0RU,R=1111110011111100,I=2,U=M,S=M,M=R,Z=A", serial)
+    cmd = string("0RU,R=1111110011111100,I=2,U=M,S=M,M=R,Z=A");
+    Command(cmd);
 
     /*
      * Supervisor data - R5
@@ -427,8 +505,8 @@ bool Weather::Configure(void)
      *       (Optional) on page 24.
      *       Heating disabled: Heating is off in all conditions.
      */
-    //self.Command("0SU,R=1111000011110000,I=120,S=Y,H=Y", serial)
-
+    cmd = string("0SU,R=1111000011110000,I=120,S=Y,H=Y");
+    Command(cmd);
 
     return true;
 }
