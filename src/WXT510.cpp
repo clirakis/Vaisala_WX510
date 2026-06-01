@@ -67,7 +67,7 @@ WXT510::WXT510 (void) : CObject()
  *
  * Returns :
  *
- * Error Conditions :
+ * Error Coditions :
  * 
  * Unit Tested on: 
  *
@@ -191,6 +191,19 @@ bool WXT510::Decode(const string &in)
 	    return false;
 	    break;
 	    
+	}
+    }
+    else if (id == "X")
+    {
+	// Supervisor messages.
+	if(id2 == "U")
+	{
+	    // response to query configuration
+	    DecodeXU(toParse);
+	}
+	else if(id2=="F")
+	{
+	    DecodeXF(toParse);
 	}
     }
     return true;
@@ -651,6 +664,181 @@ bool WXT510::DecodeR5(const string &in)
     }
     return true;
 }
+/**
+ ******************************************************************
+ *
+ * Function Name : DecodeXU
+ *
+ * Description : decode configuration
+ *
+ * Inputs :
+ *
+ * Returns :
+ *
+ * Error Conditions :
+ * 
+ * Unit Tested on: 
+ *
+ * Unit Tested by: CBL
+ *
+ *
+ *******************************************************************
+ */
+
+bool WXT510::DecodeXU(const string& in)
+{
+    SET_DEBUG_STACK;
+    CLogger *pLog = CLogger::GetThis();
+    string token;
+    istringstream  sstream(in);
+    size_t N = 0;
+    string value;
+
+    pLog->Log("# XU Response.\n");
+    while(getline(sstream, token, ','))
+    {
+	// NOT AS STRAIGHTFORWARD!
+	if((N = token.find("=")) != string::npos)
+	{
+	    value = token.substr(N+1);
+	}
+	else
+	{
+	    value = "0";
+	}
+
+	if (token.find("A=") != string::npos)
+	{
+	    fAddress = stoi(value);
+	    pLog->Log("#     Address: %s\n", value.c_str());
+	}
+	else if (token.find("M=") != string::npos)
+	{
+	    /* 
+	     * Protocol
+	     * A - ASCII automatic
+	     * a - ASCII automatic with CRC
+	     * P - ASCII polled
+	     * p - ASCII polled with CRC
+	     * N - NMEA0183 v3.0 automatic
+	     * Q - NMEA0183 v3.0 polled
+	     * S - SDI-12 v1.3
+	     * R - SDI-12 continious measurement
+	     */
+	    pLog->Log("#     Protocol %s\n", value.c_str());
+	}
+	else if (token.find("T=") != string::npos)
+	{
+	    pLog->Log("#     Test Parameter: %s\n", value.c_str());
+	}
+	else if (token.find("I=") != string::npos)
+	{
+	    pLog->Log("#     Repeat interval: %s\n", value.c_str());
+	}
+	else if (token.find("B=") != string::npos)
+	{
+	    pLog->Log("#     Baud Rate: %s\n", value.c_str());
+	}
+	else if (token.find("D=") != string::npos)
+	{
+	    pLog->Log("#     Data Bits: %s\n", value.c_str());
+	}
+	else if (token.find("P=") != string::npos)
+	{
+	    pLog->Log("#     Parity: %s\n", value.c_str());
+	}
+	else if (token.find("S=") != string::npos)
+	{
+	    pLog->Log("#     Stop bits: %s\n", value.c_str());
+	}
+	else if (token.find("L=") != string::npos)
+	{
+	    pLog->Log("#     RS-485 line delay(ms): %s\n", value.c_str());
+	}
+	else if (token.find("N=") != string::npos)
+	{
+	    pLog->Log("#     Device Name: %s\n", value.c_str());
+	}
+	else if (token.find("V=") != string::npos)
+	{
+	    pLog->Log("#     Software Version: %s\n", value.c_str());
+	}
+    }
+    return true;
+}
+
+/**
+ ******************************************************************
+ *
+ * Function Name : DecodeXF
+ *
+ * Description : decode General Parameters
+ *
+ * Inputs :
+ *
+ * Returns :
+ *
+ * Error Conditions :
+ * 
+ * Unit Tested on: 
+ *
+ * Unit Tested by: CBL
+ *
+ *
+ *******************************************************************
+ */
+
+bool WXT510::DecodeXF(const string& in)
+{
+    SET_DEBUG_STACK;
+    CLogger *pLog = CLogger::GetThis();
+    string token;
+    istringstream  sstream(in);
+    size_t N = 0;
+    string value;
+
+    pLog->Log("# XF Response.\n");
+    while(getline(sstream, token, ','))
+    {
+	if((N = token.find("=")) != string::npos)
+	{
+	    value = token.substr(N+1);
+	}
+	else
+	{
+	    value = "0";
+	}
+
+	if (token.find("f=") != string::npos)
+	{
+	    fAddress = stoi(value);
+	    pLog->Log("#     Factory options: %s\n", value.c_str());
+	}
+	else if (token.find("o=") != string::npos)
+	{
+	    pLog->Log("#     Order code: %s\n", value.c_str());
+	}
+	else if (token.find("i=") != string::npos)
+	{
+	    pLog->Log("#     Info: %s\n", value.c_str());
+	}
+	else if (token.find("n=") != string::npos)
+	{
+	    pLog->Log("#     Serial number: %s\n", value.c_str());
+	}
+	else if (token.find("2=") != string::npos)
+	{
+	    pLog->Log("#     2.5V Reference: %s\n", value.c_str());
+	}
+	else if (token.find("3=") != string::npos)
+	{
+	    pLog->Log("#     3.5V Reference: %s\n", value.c_str());
+	}
+    }
+    return true;
+}
+
+
 /**
  ******************************************************************
  *

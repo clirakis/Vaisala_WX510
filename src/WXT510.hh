@@ -21,6 +21,7 @@
 #ifndef __WXT510_hh_
 #define __WXT510_hh_
 #  include <string>
+#  include <stdint.h>
 #  include "CObject.hh"
 
 /// WXT510 documentation here. 
@@ -74,7 +75,47 @@ public:
      */
     void TimeTag(void);
 
+    /*!
+     * Description: 
+     *   
+     *
+     * Arguments:
+     *   
+     *
+     * Returns:
+     *
+     * Errors:
+     *
+     */
+    inline void SetAddress(uint8_t add) {fAddress = add;};
 
+    /*!
+     * Description: 
+     *   
+     *
+     * Arguments:
+     *   
+     *
+     * Returns:
+     *
+     * Errors:
+     *
+     */
+    inline uint8_t Address(void) const {return fAddress;};
+
+
+     /*!
+     * Description: 
+     *   
+     *
+     * Arguments:
+     *   
+     *
+     * Returns:
+     *
+     * Errors:
+     *
+     */
     friend std::ostream& operator<<(std::ostream& output, const WXT510 &in);
 
 private:
@@ -104,6 +145,8 @@ private:
     double fWind_SpeedAvg;
     double fWind_SpeedMax;
 
+    uint8_t fAddress;
+
     /* Private decoding functions */
 
     /*!
@@ -131,7 +174,13 @@ private:
     /*!
      * Decode the communications data
      */
-    bool DecodeXU(std::string &in);
+    bool DecodeXU(const std::string &in);
+
+    /*!
+     * Decode the General parameters
+     */
+    bool DecodeXF(const std::string &in);
+
 
 };
 #endif

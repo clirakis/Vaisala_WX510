@@ -59,6 +59,50 @@ public:
      */
     void Stop(void) {fRun=false;};
 
+
+    /*!
+     * Description: 
+     *   
+     *
+     * Arguments:
+     *   
+     *
+     * Returns:
+     *
+     * Errors:
+     *
+     */
+    inline void QueryCommunication(void) {Command("0XU");};
+ 
+    /*!
+     * Description: 
+     *   
+     *
+     * Arguments:
+     *   
+     *
+     * Returns:
+     *
+     * Errors:
+     *
+     */
+    inline void QueryGeneral(void) {Command("0XF");};
+ 
+    inline void Reset(void) {Command("0XZ");};
+    inline void ResetPrecipitationCounter(void) {Command("0XZRU");};
+    inline void ResetPrecipitationIntensity(void) {Command("0XZRI");};
+    inline void ResetMeasurement(void) {Command("0XZM");};
+
+    void SetProtocol(const string &in);
+
+    bool Configure(void);
+
+    void SetAutomaticInterval(uint32_t sec);
+
+    // To Do
+    inline void SupervisorECNo(void) {Command("0SU,S=N");};
+    inline void CheckSupervisor(void) {Command("0SU");};
+
     /**
      * Control bits - control verbosity of output
      */
@@ -103,6 +147,14 @@ private:
      * Open the data logger. 
      */
     bool OpenLogFile(void);
+
+    bool Command(const string& cmd);
+
+
+    /*!
+     * Setup, the way I want it to respond
+     */
+    bool Setup(void);
 
 
     /*!

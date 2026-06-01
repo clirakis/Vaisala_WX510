@@ -3,9 +3,10 @@
  *
  * Module Name : Weather.cpp
  *
- * Author/Date : C.B. Lirakis / 05-Mar-19
+ * Author/Date : C.B. Lirakis / 31-May-26
  *
- * Description : Lassen control entry points. 
+ * Description : Combine serial interface with WXT510 and possibly 
+ *               other sources. 
  *
  * Restrictions/Limitations : none
  *
@@ -24,16 +25,7 @@
 using namespace std;
 
 #include <string>
-#include <cmath>
-#include <csignal>
-#include <ctime>
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <fcntl.h>
 #include <unistd.h>
-#include <limits.h>
-#include <unistd.h>
-#include <errno.h>
 #include <cstdlib>
 #include <libconfig.h++>
 using namespace libconfig;
@@ -183,7 +175,263 @@ Weather::~Weather(void)
     Logger->Log("# Weather closed.\n");
     SET_DEBUG_STACK;
 }
+/**
+ ******************************************************************
+ *
+ * Function Name : Command
+ *
+ * Description :
+ *
+ * Inputs :
+ *
+ * Returns :
+ *
+ * Error Conditions :
+ * 
+ * Unit Tested on: 
+ *
+ * Unit Tested by: CBL
+ *
+ *
+ *******************************************************************
+ */
+bool Weather::Command(const string& cmd)
+{
+    SET_DEBUG_STACK;
+    if(Debug(0))
+    {
+	CLogger::GetThis()->LogTime(" Command %s\n", cmd.c_str());
+    }
+    string toSend = cmd + "\n";
+    fSerialIO->Write((unsigned char *)toSend.c_str(), toSend.size());
+    return true;
+}
+/**
+ ******************************************************************
+ *
+ * Function Name : SetProtocol
+ *
+ * Description : Set the protocol for the serial line
+ *
+ * Inputs :
+ *
+ * Returns :
+ *
+ * Error Conditions :
+ * 
+ * Unit Tested on: 
+ *
+ * Unit Tested by: CBL
+ *
+ *
+ *******************************************************************
+ */
+void Weather::SetProtocol(const string& Protocol)
+{
+    SET_DEBUG_STACK;
+    string cmd;
 
+    if ((Protocol=="A") || (Protocol=="a") || (Protocol=="P") || (Protocol=="p") || (Protocol=="N") || (Protocol=="Q") || (Protocol=="S") || (Protocol=="R"))
+    {
+	cmd = "0XXU,M=" + Protocol;
+	Command(cmd);
+    }
+}
+/**
+ ******************************************************************
+ *
+ * Function Name : SetAutomaticInterval
+ *
+ * Description : Set the interval at which the data is provided. 
+ *
+ * Inputs :
+ *
+ * Returns :
+ *
+ * Error Conditions :
+ * 
+ * Unit Tested on: 
+ *
+ * Unit Tested by: CBL
+ *
+ *
+ *******************************************************************
+ */
+void Weather::SetAutomaticInterval(uint32_t sec)
+{
+    SET_DEBUG_STACK;
+    if(sec<3600)
+    {
+	string cmd("0XU,");
+	cmd += "I" + to_string(sec);
+	Command(cmd);
+    }
+}
+
+/**
+ ******************************************************************
+ *
+ * Function Name : Setup
+ *
+ * Description : setup the system the way I want it. 
+ *
+ * Inputs :
+ *
+ * Returns :
+ *
+ * Error Conditions :
+ * 
+ * Unit Tested on: 
+ *
+ * Unit Tested by: CBL
+ *
+ *
+ *******************************************************************
+ */
+bool Weather::Setup(void)
+{
+    SET_DEBUG_STACK;
+    CLogger *pLog = CLogger::GetThis();
+
+    pLog->LogTime(" Setup --------------\n");
+
+    pLog->LogTime(" Reset!\n");
+    Command("0XZ");
+    ResetMeasurement();
+    sleep(1);
+
+    SetProtocol("P");
+    SetAutomaticInterval(5);
+    QueryCommunication();
+    QueryGeneral();
+
+    return true;
+}
+
+
+/**
+ ******************************************************************
+ *
+ * Function Name : Configure
+ *
+ * Description : How do we want our messages?
+ *
+ * Inputs :
+ *
+ * Returns :
+ *
+ * Error Conditions :
+ * 
+ * Unit Tested on: 
+ *
+ * Unit Tested by: CBL
+ *
+ *
+ *******************************************************************
+ */
+bool Weather::Configure(void)
+{
+    SET_DEBUG_STACK;
+    CLogger *pLog = CLogger::GetThis();
+
+    pLog->LogTime(" Configure --------------\n");
+    /*
+     *
+     * Configure Wind Parameters, R1
+     * R = messages, page 95 in manual
+     * I = update interval seconds
+     * A = Average time
+     * U = Speed unit: M = m/s, K = km/h, S = mph, N = knots
+     * D = Direction correction: -180 ... 180
+     * N = NMEA wind formatter
+     * F = Sampling rate: 1, 2, or 4 Hz
+     *
+     */
+    // FIXME
+    //self.Command("0WU,R=1111110011111100,I=1,A=30,U=M,F=4", serial)
+
+    /*
+     * Turn it off
+     * self.Command("0WU,I=0", serial)
+     */
+
+    /*
+     * Pressure/Temperature/Humidity - R2
+     * [R] = fields to transmit - page 100
+     * [I] = Update interval: 1 ... 3600 seconds
+     * [P] = Pressure unit: H = hPa, P = Pascal, B = bar, M = mmHg, I = inHg
+     * [T] = Temperature unit: C = Celsius, F = Fahrenheit
+     *
+     */
+    //self.Command("0TU,R=1111000011110000,I=5,P=B,T=C", serial);
+
+    /*
+     * Precipitation - R3
+     * [R] = fields to transmit - page 104
+     * [I] = Update interval: 1 ... 3600 seconds. This interval is
+     *      valid only if the [M] field is = T
+     * [U] = Precipitation units: M = metric (accumulated rainfall in mm,
+     *       Rain duration in s, Rain intensity in mm/h)
+     *       I = imperial (the corresponding parameters in units
+     *       in, s, in/h)
+     * [S] = Units for surface hits:
+     *       M = metric (accumulated hailfall in hits/cm 2 , Hail
+     *           event duration in s, Hail intensity in hits/cm 2 h)
+     *       I = imperial (the corresponding parameters in units
+     *           hits/in 2 , s, hits/in 2 h), H = hits (hits, s, hits/h)
+     *           Changing the unit resets the precipitation counter.
+     * [M] = Autosend mode: R = precipitation on/off, C = tipping
+     *       bucket, T = time based
+     *               R = precipitation on/off: The transmitter sends a
+     *                   precipitation message 10 seconds after the first
+     *                   recognition of precipitation. Rain duration Rd
+     *                   increases in 10 s steps. Precipitation has ended
+     *                   when:
+     *                   Ri = 0. This mode is used for indication of the
+     *                   start and the end of the precipitation.
+     *                   C = tipping bucket: The transmitter sends a
+     *                       precipitation message at each unit increment
+     *                       (0.1mm/0.01 in). This simulates conventional
+     *                       tipping bucket method.
+     *                   T = time based: Transmitter sends a precipitation
+     *                       message in the intervals defined in the
+     *                       [I] field.
+     *                       However, in polled protocols the autosend mode
+     *                       tipping bucket should not be used as in it the
+     *                       resolution of the output is decreased
+     *                       (quantized to tipping bucket tips).
+     * [Z] = Counter reset: M = manual, A = automatic, Y = immediate
+     *       Sets both rain/hail accumulation count and duration
+     *       of the rain/hail event to zero.
+     *       M = manual reset mode: The counter is reset with
+     *       aXZRU command only, see Precipitation Counter
+     *       Reset (aXZRU) on page 54.
+     *       A = automatic reset mode: The counts are reset after
+     *       each precipitation message whether in automatic
+     *       mode or when polled.
+     *       Y = immediate reset: The counts are reset
+     *       immediately after receiving the command.
+     */
+    //self.Command("0RU,R=1111110011111100,I=2,U=M,S=M,M=R,Z=A", serial)
+
+    /*
+     * Supervisor data - R5
+     * [R] - fields to send, page 109
+     * [I] = Update interval: 1 ... 3600 seconds. When the
+     *       heating is enabled the update interval is forced to 15
+     *       seconds.
+     * [S] = Error messaging: Y = enabled, N = disabled
+     * [H] = Heating control enable: Y = enabled, N = disabled
+     *       Heating enabled: The control between full and half
+     *       heating power is on as described in Heating
+     *       (Optional) on page 24.
+     *       Heating disabled: Heating is off in all conditions.
+     */
+    //self.Command("0SU,R=1111000011110000,I=120,S=Y,H=Y", serial)
+
+
+    return true;
+}
 /**
  ******************************************************************
  *
@@ -195,7 +443,7 @@ Weather::~Weather(void)
  *
  * Returns :
  *
- * Error Conditions :
+ * Error Coditions :
  * 
  * Unit Tested on: 
  *
@@ -356,6 +604,7 @@ bool Weather::ReadConfiguration(void)
     try
     {
 	int    Debug;
+	int    address = 0;
 
 	/*
 	 * index into group Weather
@@ -364,7 +613,9 @@ bool Weather::ReadConfiguration(void)
 	MM.lookupValue("Logging",   fLogging);
 	MM.lookupValue("Debug",     Debug);
 	MM.lookupValue("SerPort",   fSerialPortName);
+	MM.lookupValue("Address",   address);
 	SetDebug(Debug);
+	SetAddress(address);
     }
     catch(const SettingNotFoundException &nfex)
     {
@@ -412,6 +663,7 @@ bool Weather::WriteConfiguration(void)
     MM.add("Debug",     Setting::TypeInt)     = 0;
     MM.add("Logging",   Setting::TypeBoolean) = fLogging;
     MM.add("SerPort",   Setting::TypeString)  = fSerialPortName;
+    MM.add("Address",   Setting::TypeInt)     = (int) Address();
 
     // Write out the new configuration.
     try
