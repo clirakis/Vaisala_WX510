@@ -139,6 +139,7 @@ private:
 
     std::string  fSerialPortName;
     SerialIO*    fSerialIO;
+    int32_t      fUpdateInterval;
 
 
     /* Private functions. ==============================  */

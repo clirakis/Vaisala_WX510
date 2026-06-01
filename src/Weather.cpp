@@ -77,7 +77,8 @@ Weather::Weather(const char* ConfigFile) : WXT510()
     /* 
      * Set defaults for configuration file. 
      */
-    fLogging = true;
+    fLogging        = true;
+    fUpdateInterval = 5; // Seconds
 
     if(!ConfigFile)
     {
@@ -132,6 +133,7 @@ Weather::Weather(const char* ConfigFile) : WXT510()
      */
     Setup();      // Perform reset 
     Configure();  // Configure which messages are to be included and how. 
+    SetAutomaticInterval(fUpdateInterval);
 
     Logger->Log("# Weather constructed.\n");
 
@@ -692,6 +694,7 @@ bool Weather::ReadConfiguration(void)
 	MM.lookupValue("Debug",     Debug);
 	MM.lookupValue("SerPort",   fSerialPortName);
 	MM.lookupValue("Address",   address);
+	MM.lookupValue("Interval",  fUpdateInterval);
 	SetDebug(Debug);
 	SetAddress(address);
     }
@@ -742,6 +745,7 @@ bool Weather::WriteConfiguration(void)
     MM.add("Logging",   Setting::TypeBoolean) = fLogging;
     MM.add("SerPort",   Setting::TypeString)  = fSerialPortName;
     MM.add("Address",   Setting::TypeInt)     = (int) Address();
+    MM.add("Interval",  Setting::TypeInt)     = fUpdateInterval;
 
     // Write out the new configuration.
     try
