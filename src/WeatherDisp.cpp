@@ -72,17 +72,17 @@ static const char *main_frame_window[] =
 #define MAINFRAMEWINSIZ sizeof(main_frame_window)/sizeof(main_frame_window[0])
 
 static const char *pos_strings[] = {
-             "    Weather Data                               ",
-             "     Wind Speed :           Direction:         ",
-             "    Temperature :            Humidity:         ",
-             "        Pressure:                              ",
-             "            Rain:           Intensity:         ",
-             "            Hail:           Intensity:         ",
-             "                                               ",
-             "                                               ",
-             "                                               ",
-	     "                                               ",
-             "                                               ",
+             "    Weather Data                                     ",
+             "     Wind Speed :        Direction:                  ",
+             "    Temperature :         Humidity:                  ",
+             "        Pressure:                                    ",
+             "            Rain:            Inten:    Duration:     ",
+             "            Hail:            Inten:    Duration:     ",
+             "     Heater Temp:          Voltage:                  ",
+             "                                                     ",
+             "                                                     ",
+	     "                                                     ",
+             "                                                     ",
 };
 
 #define POS_STR_SIZE sizeof(pos_strings) / sizeof(pos_strings[0])
@@ -380,6 +380,10 @@ void Weather_Display::display_all(const WXT510 *pW)
     wprintw(fVin, "%4.2f", pW->HailAccumulation());
     row++;
 
+    wmove  (fVin, row, col);
+    wprintw(fVin, "%4.2f", pW->HeaterTemperature());
+    row++;
+
     row = STATUS_AREA;
     col = RIGHT_AREA;
     wmove  (fVin, row, col);
@@ -396,6 +400,10 @@ void Weather_Display::display_all(const WXT510 *pW)
 
     wmove  (fVin, row, col);
     wprintw(fVin, "%4.1f", pW->HailIntensity());
+    row++;
+
+    wmove  (fVin, row, col);
+    wprintw(fVin, "%4.2f", pW->HeaterVoltage());
     row++;
 
     /* set background color */
