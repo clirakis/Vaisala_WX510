@@ -73,11 +73,11 @@ static const char *main_frame_window[] =
 
 static const char *pos_strings[] = {
              "    Weather Data                                     ",
-             "     Wind Speed :        Direction:                  ",
+             "     Wind Speed :              Dir:                  ",
              "    Temperature :         Humidity:                  ",
              "        Pressure:                                    ",
-             "            Rain:            Inten:    Duration:     ",
-             "            Hail:            Inten:    Duration:     ",
+             "            Rain:            Inten:      Dur:        ",
+             "            Hail:            Inten:      Dur:        ",
              "     Heater Temp:          Voltage:                  ",
              "                                                     ",
              "                                                     ",
