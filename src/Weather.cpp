@@ -36,8 +36,14 @@ using namespace libconfig;
 #include "tools.h"
 #include "debug.h"
 #include "SerialIO.h"
+#include "WeatherDisp.hh"
 
 Weather* Weather::fWeather;
+
+/**
+ * thread control for the display if selected. 
+ */
+static pthread_t d_thread;
 
 
 /**
@@ -73,6 +79,7 @@ Weather::Weather(const char* ConfigFile) : WXT510()
     fRun            = true;
     fSerialIO       = NULL;
     fSerialPortName = "/dev/ttyUSB1";
+    fPDisplay       = NULL;
 
     /* 
      * Set defaults for configuration file. 
@@ -128,6 +135,23 @@ Weather::Weather(const char* ConfigFile) : WXT510()
 	OpenLogFile();
     }
 
+    if(fDisplay)
+    {
+	/* If the user has requested the display feature, start it now. */
+	/* create the display. */
+	fPDisplay = new Weather_Display();
+	if( pthread_create(&d_thread, NULL, DisplayThread, NULL) == 0)
+	{
+	    Logger->Log("# Display Thread successfully created.\n");
+	}
+	else
+	{
+	    SET_DEBUG_STACK;
+	    /* It is not the end of the world if this fails. */
+	    Logger->Log("# Dispaly Thread failed.\n");
+	}
+    }
+
     /*
      * Do any setup specific to the instrument 
      */
@@ -164,6 +188,11 @@ Weather::~Weather(void)
     SET_DEBUG_STACK;
     CLogger *Logger = CLogger::GetThis();
 
+    // Kill the display thread.
+    fPDisplay->Stop();
+    delete fPDisplay;
+    fPDisplay = NULL;
+
     // Do some other stuff as well. 
     if(!WriteConfiguration())
     {
@@ -178,6 +207,7 @@ Weather::~Weather(void)
     /* Clean up */
     delete f5Logger;
     f5Logger = NULL;
+
 
     // Make sure all file streams are closed
     Logger->Log("# Weather closed.\n");
@@ -216,11 +246,16 @@ bool Weather::ReadResponse(void)
     if (rc>0)
     {
 	TimeTag();
-	// A few incomplete sentances to start with. 
-	// DEBUG, FIXME
-	cout << line << endl;
+	if(fPDisplay)
+	{
+	    fPDisplay->WriteMsgToScreen(line);
+	}
 	if(Decode(line))
 	{
+	    if(fPDisplay)
+	    {
+		fPDisplay->Update(this);
+	    }
 	    if(Debug(0))
 	    {
 		cout << "Decode succeeded. " << endl;
@@ -733,6 +768,7 @@ bool Weather::ReadConfiguration(void)
 	MM.lookupValue("SerPort",   fSerialPortName);
 	MM.lookupValue("Address",   address);
 	MM.lookupValue("Interval",  fUpdateInterval);
+	MM.lookupValue("Display",   fDisplay);
 	SetDebug(Debug);
 	SetAddress(address);
     }
@@ -784,6 +820,7 @@ bool Weather::WriteConfiguration(void)
     MM.add("SerPort",   Setting::TypeString)  = fSerialPortName;
     MM.add("Address",   Setting::TypeInt)     = (int) Address();
     MM.add("Interval",  Setting::TypeInt)     = fUpdateInterval;
+    MM.add("Display",   Setting::TypeBoolean) = fDisplay;
 
     // Write out the new configuration.
     try

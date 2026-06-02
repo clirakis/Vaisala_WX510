@@ -105,6 +105,20 @@ public:
 
 
     inline struct timespec Time(void) const {return fTime;};
+    inline double Temperature(void) const {return fTemperature;};
+    inline double Pressure(void) const {return fPressure;};
+    inline double Humidity(void) const {return fHumidity;};
+    inline double RainAccumulation(void) const {return fRain_accumulation;};
+    inline double RainIntensity(void) const {return fRain_intensity;};
+    inline double RainDuration(void) const {return fRain_duration;};
+    inline double HailAccumulation(void) const {return fHail_accumulation;};
+    inline double HailIntensity(void) const {return fHail_intensity;};
+    inline double HailDuration(void) const {return fHail_duration;};
+    inline double HeaterTemperature(void) const {return fHeatT;};
+    inline double HeaterVoltage(void) const {return fHeatV;};
+    inline double WindAverage(void) const {return fWind_SpeedAvg;};
+    inline double WindDir(void) const {return fWind_DirectionAvg;};
+
 
      /*!
      * Description: 

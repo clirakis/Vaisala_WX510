@@ -24,7 +24,7 @@
 #  include "H5Logger.hh"
 #  include "filename.hh"
 #  include "WXT510.hh"
-
+class Weather_Display;
 class SerialIO;
 
 class Weather : public WXT510
@@ -142,6 +142,9 @@ private:
     std::string  fSerialPortName;
     SerialIO*    fSerialIO;
     int32_t      fUpdateInterval;
+
+    bool             fDisplay;
+    Weather_Display* fPDisplay;
 
 
     /* Private functions. ==============================  */

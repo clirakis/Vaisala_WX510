@@ -356,30 +356,43 @@ void Weather_Display::display_all(const WXT510 *pW)
 {
     SET_DEBUG_STACK;
     int row, col;
-    char tmpstr[64];
 
     row = STATUS_AREA;
     col = LEFT_AREA;
-#if 0    
+  
     wmove  (fVin, row, col);
-    wprintw(fVin, "%s", str_lat(pPS->Latitude()*DegToRad, tmpstr));
+    wprintw(fVin, "%4.1f",pW->WindAverage());
     row++;
     
     wmove  (fVin, row, col);
-    wprintw(fVin, "%s", str_lon(pPS->Longitude()*DegToRad, tmpstr));
+    wprintw(fVin, "%5.2f", pW->Temperature());
     row++;
     
     wmove  (fVin, row, col);
-    wprintw(fVin, "%6.2f", pPS->Altitude());
+    wprintw(fVin, "%4.2f", pW->RainAccumulation());
     row++;
 
     wmove  (fVin, row, col);
-    wprintw(fVin, "%6.2f", pPS->Velocity());
+    wprintw(fVin, "%4.2f", pW->HailAccumulation());
+    row++;
+
+    row = STATUS_AREA;
+    col = RIGHT_AREA;
+    wmove  (fVin, row, col);
+    wprintw(fVin, "%4.1f", pW->WindDir());
     row++;
 
     wmove  (fVin, row, col);
-    wprintw(fVin, "%6.2f", pPS->Heading());
-#endif
+    wprintw(fVin, "%4.1f", pW->Humidity());
+    row++;
+
+    wmove  (fVin, row, col);
+    wprintw(fVin, "%4.1f", pW->RainIntensity());
+    row++;
+    wmove  (fVin, row, col);
+    wprintw(fVin, "%4.1f", pW->HailIntensity());
+    row++;
+
     /* set background color */
     wbkgd(fVin, COLOR_PAIR(1));
     /* push the output to the screen */
