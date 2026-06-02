@@ -406,7 +406,7 @@ void Weather_Display::display_all(const WXT510 *pW)
     wprintw(fVin, "%4.2f", pW->HeaterVoltage());
     row++;
 
-    row = STATUS_AREA + 4;
+    row = STATUS_AREA + 3;
     col = COL_THREE;
 
     wmove  (fVin, row, col);
@@ -696,8 +696,8 @@ void* DisplayThread(void *arg)
 	 * Check to see if the user has requested
 	 * special changes in the setup
 	 */
-	//rv = pDisp->checkKeys();
-	rv = false; // Keeps picking up nonsense.
+	rv = pDisp->checkKeys();
+	//rv = false; // Keeps picking up nonsense.
 	if (rv)
 	{
 	    pDisp->WriteMsgToScreen("QUIT\0");
