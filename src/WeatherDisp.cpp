@@ -75,13 +75,13 @@ static const char *pos_strings[] = {
              "    Weather Data                               ",
              "     Wind Speed :           Direction:         ",
              "    Temperature :            Humidity:         ",
+             "        Pressure:                              ",
              "            Rain:           Intensity:         ",
              "            Hail:           Intensity:         ",
              "                                               ",
              "                                               ",
              "                                               ",
 	     "                                               ",
-             "                                               ",
              "                                               ",
 };
 
@@ -366,6 +366,10 @@ void Weather_Display::display_all(const WXT510 *pW)
     
     wmove  (fVin, row, col);
     wprintw(fVin, "%5.2f", pW->Temperature());
+    row++;
+    
+    wmove  (fVin, row, col);
+    wprintw(fVin, "%5.3f", pW->Pressure());
     row++;
     
     wmove  (fVin, row, col);
