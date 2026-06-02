@@ -254,7 +254,7 @@ bool Weather::ReadResponse(void)
 	{
 	    if(fPDisplay)
 	    {
-		fPDisplay->Update(this);
+		//fPDisplay->Update(this);
 	    }
 	    if(Debug(0))
 	    {
