@@ -626,6 +626,7 @@ bool Weather_Display::checkKeys(void)
 	    break;
 	case 'd':
 	case 'D':
+	    // Meant to toggle display messages on/off
 	    fDisplayData = !fDisplayData;
 	    break;
 	case '?':
@@ -634,6 +635,7 @@ bool Weather_Display::checkKeys(void)
 	    break;
 	case 'h':
 	case 'H':
+	    // Home
 	    fCurrentScreen = WEATHER_SCREEN;
 	    main_frame();
 	    break;

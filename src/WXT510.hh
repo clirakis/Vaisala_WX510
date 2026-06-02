@@ -105,11 +105,14 @@ public:
 
 
     inline struct timespec Time(void) const {return fTime;};
-    inline double Temperature(void) const {return fTemperature;};
-    inline double Pressure(void) const {return fPressure;};
-    inline double Humidity(void) const {return fHumidity;};
+    inline double Temperature(void) const {return fTemperature;}; // C
+    inline double Pressure(void) const {return fPressure;};       // BAR
+    inline double Humidity(void) const {return fHumidity;};       // Percent
+    // mm
     inline double RainAccumulation(void) const {return fRain_accumulation;};
+    // mm/hr
     inline double RainIntensity(void) const {return fRain_intensity;};
+    // Seconds
     inline double RainDuration(void) const {return fRain_duration;};
     inline double HailAccumulation(void) const {return fHail_accumulation;};
     inline double HailIntensity(void) const {return fHail_intensity;};
