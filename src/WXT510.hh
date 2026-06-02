@@ -104,6 +104,8 @@ public:
     inline uint8_t Address(void) const {return fAddress;};
 
 
+    inline struct timespec Time(void) const {return fTime;};
+
      /*!
      * Description: 
      *   

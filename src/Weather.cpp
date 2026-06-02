@@ -183,6 +183,59 @@ Weather::~Weather(void)
     Logger->Log("# Weather closed.\n");
     SET_DEBUG_STACK;
 }
+
+/**
+ ******************************************************************
+ *
+ * Function Name : ReadResponse
+ *
+ * Description : See if there is any data from the serial port 
+ *               if there is, decode it. 
+ *
+ * Inputs :
+ *
+ * Returns :
+ *
+ * Error Coditions :
+ * 
+ * Unit Tested on: 
+ *
+ * Unit Tested by: CBL
+ *
+ *
+ *******************************************************************
+ */
+bool Weather::ReadResponse(void)
+{
+    SET_DEBUG_STACK;
+    char line[256];
+    int32_t  rc;
+
+    memset(line, 0, sizeof(line));
+    rc = fSerialIO->Read((unsigned char *)line, sizeof(line));
+    if (rc>0)
+    {
+	TimeTag();
+	// A few incomplete sentances to start with. 
+	// DEBUG, FIXME
+	cout << line << endl;
+	if(Decode(line))
+	{
+	    if(Debug(0))
+	    {
+		cout << "Decode succeeded. " << endl;
+		cout << *this << endl;
+	    }
+	}
+    }
+    else
+    {
+	return false;
+    }
+    SET_DEBUG_STACK;
+    return true;
+}
+
 /**
  ******************************************************************
  *
@@ -212,6 +265,7 @@ bool Weather::Command(const string& cmd)
     }
     string toSend = cmd + "\n";
     fSerialIO->Write((unsigned char *)toSend.c_str(), toSend.size());
+    // See if there is any response to this command, many do not have returns. 
     return true;
 }
 /**
@@ -512,6 +566,7 @@ bool Weather::Configure(void)
 
     return true;
 }
+
 /**
  ******************************************************************
  *
@@ -536,29 +591,12 @@ void Weather::Do(void)
 {
     SET_DEBUG_STACK;
     uint32_t count = 0;
-    char line[256];
-    int32_t  rc;
 
     fRun = true;
 
     while(fRun)
     {
-	memset(line, 0, sizeof(line));
-	rc = fSerialIO->Read((unsigned char *)line, sizeof(line));
-	if (rc>0)
-	{
-	    TimeTag();
-	    // A few incomplete sentances to start with. 
-	    cout << line << endl;
-	    if(Decode(line))
-	    {
-		if(Debug(0))
-		{
-		    cout << "Decode succeeded. " << endl;
-		    cout << *this << endl;
-		}
-	    }
-	}
+	ReadResponse();
 	sleep(1);
 	count++;
     }

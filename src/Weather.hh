@@ -99,6 +99,8 @@ public:
 
     void SetAutomaticInterval(uint32_t sec);
 
+    bool ReadResponse(void);
+
     // To Do
     inline void SupervisorECNo(void) {Command("0SU,S=N");};
     inline void CheckSupervisor(void) {Command("0SU");};
