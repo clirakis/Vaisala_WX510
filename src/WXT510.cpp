@@ -23,6 +23,7 @@ using namespace std;
 #include <cstring>
 #include <stdint.h>
 #include <sstream>
+#include <ctype.h>
 
 // Local Includes.
 #include "debug.h"
@@ -167,23 +168,33 @@ bool WXT510::Decode(const string &in)
     string toParse = in.substr(4);
     if (id == "R")
     {
-	int type = stoi(id2);
+	/* 
+	 * Oddball message 0Ra=1.0185B,Rc=1.58M,Th=15.6C,Vh=12.2N\r\n 
+	 * Ra ??
+	 * Rc Rain amount
+	 * and so on, middle of message? 
+	 */
+	int type = (int) id2[0]; //stoi(id2);
 	switch(type)
 	{
-	case 0:
+	case '0':
 	    DecodeR0(toParse);
 	    break;
-	case 1:
+	case '1':
 	    DecodeR1(toParse);
 	    break;
-	case 2:
+	case '2':
 	    DecodeR2(toParse);
 	    break;
-	case 3:
+	case '3':
 	    DecodeR3(toParse);
 	    break;
-	case 5:
+	case '5':
 	    DecodeR5(toParse);
+	    break;
+	case 'U':
+	    // Precipitation
+	    pLog->LogTime("Precip.\n");
 	    break;
 	default:
 	    pLog->LogTime("Input not recognized: %s\n", in.c_str());
@@ -191,6 +202,14 @@ bool WXT510::Decode(const string &in)
 	    break;
 	    
 	}
+    }
+    else if (id == "S")
+    {
+	// Supervisor
+    }
+    else if (id == "W")
+    {
+	// Wind
     }
     else if (id == "X")
     {
