@@ -388,11 +388,10 @@ void Weather_Display::display_all(const WXT510 *pW)
 
     wmove  (fVin, row, col);
     wprintw(fVin, "%4.1f", pW->Humidity());
-    row++;
+    row+=2;
 
     wmove  (fVin, row, col);
     wprintw(fVin, "%4.1f", pW->RainIntensity());
-    row++;
     row++;
 
     wmove  (fVin, row, col);
