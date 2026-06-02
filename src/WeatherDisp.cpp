@@ -44,7 +44,7 @@ static int CommandCol   = 2;
 static const char *main_frame_window[] =
 {
     "+----------------------------------------------------------------------------+",
-    "|            Weather  (h)ome, (r)efresh                                        ",
+    "|            Weather  (h)ome, (r)efresh                                      |",
     "+----------------------------------------------------------------------------+",
     "|                                                                            |",
     "|                                                                            |",
@@ -405,6 +405,18 @@ void Weather_Display::display_all(const WXT510 *pW)
     wmove  (fVin, row, col);
     wprintw(fVin, "%4.2f", pW->HeaterVoltage());
     row++;
+
+    row = STATUS_AREA + 4;
+    col = COL_THREE;
+
+    wmove  (fVin, row, col);
+    wprintw(fVin, "%4.2f", pW->RainDuration());
+    row++;
+
+    wmove  (fVin, row, col);
+    wprintw(fVin, "%4.2f", pW->HailDuration());
+    row++;
+
 
     /* set background color */
     wbkgd(fVin, COLOR_PAIR(1));
