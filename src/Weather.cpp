@@ -254,12 +254,7 @@ bool Weather::ReadResponse(void)
 	{
 	    if(fPDisplay)
 	    {
-		//fPDisplay->Update(this);
-	    }
-	    if(Debug(0))
-	    {
-		cout << "Decode succeeded. " << endl;
-		cout << *this << endl;
+		fPDisplay->Update(this);
 	    }
 	}
     }
