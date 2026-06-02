@@ -36,7 +36,7 @@
 /* Columns */
 #define LEFT_AREA     21
 #define RIGHT_AREA    LEFT_AREA+18
-#define COL_THREE     RIGHT_AREA+18
+#define COL_THREE     RIGHT_AREA+22
 
 
 /* Screen definitions. */
