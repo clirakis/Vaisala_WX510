@@ -89,19 +89,19 @@ static const char *pos_strings[] = {
 
 
 static const char *help_strings[] = {
-             "                          Help                 ",
-             "                                               ",
-             "  d - toggle display data (Hex codes rec'd)    ",
-             "                                               ",
-             "  f - filename change, advance number          ",
-             "  h - home                                     ",
-             "                                               ",
-             "  q - quit                                     ",
-             "  r - refresh                                  ",
-	     "                                               ",
-             "  ? - help                                     ",
-             "                                               ",
-             "                                               ",
+             "                          Help                       ",
+             "                                                     ",
+             "  d - toggle display data (Hex codes rec'd)          ",
+             "                                                     ",
+             "                                                     ",
+             "  h - home                                           ",
+             "  p - Reset Rain and Hail counters.                  ",
+             "  q - quit                                           ",
+             "  r - refresh                                        ",
+	     "                                                     ",
+             "  ? - help                                           ",
+             "                                                     ",
+             "                                                     ",
 };
 
 #define HELP_STR_SIZE sizeof(help_strings) / sizeof(help_strings[0])
@@ -616,11 +616,10 @@ bool Weather_Display::checkKeys(void)
     /* get a character from the window. */
     //char c = wgetch(fVin);
     int c = getch();    // This does less harm to the screen
-    //int c = get_wch();
 
     if (((char)c) != '\0')
     {
-	CLogger::GetThis()->LogTime("check keys %c\n", (char)c);
+	//CLogger::GetThis()->LogTime("check keys %c\n", (char)c);
 	switch (c)
 	{
 	case 0:
@@ -633,15 +632,15 @@ bool Weather_Display::checkKeys(void)
 	    fCurrentScreen = HELP_SCREEN;
 	    main_frame();
 	    break;
-	case 'f':
-	case 'F':
-	    // File name change requested. 
-	    //On::GetThis()->UpdateFileName();
-	    break;
 	case 'h':
 	case 'H':
 	    fCurrentScreen = WEATHER_SCREEN;
 	    main_frame();
+	    break;
+	case 'p':
+	case 'P':
+	    Weather::GetThis()->ResetPrecipitationCounter();
+	    Weather::GetThis()->ResetPrecipitationIntensity();
 	    break;
 	case 'q':
 	case 'Q':
