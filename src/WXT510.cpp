@@ -194,6 +194,7 @@ bool WXT510::Decode(const string &in)
     }
     else if (id == "X")
     {
+	SET_DEBUG_STACK;
 	// Supervisor messages.
 	if(id2 == "U")
 	{
