@@ -27,7 +27,7 @@ def main():
         print("Error opening serial port.\n")
         exit()
 
-    command = "0SU" + CR + LF
+    command = "0SU\r\n"
     pser.write(command.encode())
     line = pser.readline()
     print("Response: ", line)
