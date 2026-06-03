@@ -87,6 +87,8 @@ public:
      *
      */
     inline void QueryGeneral(void) {Command("0XF");};
+
+    inline void QuerySetup(void) {Command("0SU");};
  
     inline void Reset(void) {Command("0XZ");};
     inline void ResetPrecipitationCounter(void) {Command("0XZRU");};

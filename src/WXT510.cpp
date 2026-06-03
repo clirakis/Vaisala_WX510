@@ -206,6 +206,7 @@ bool WXT510::Decode(const string &in)
     else if (id == "S")
     {
 	// Supervisor
+	pLog->LogTime("Supervisor message: %s\n", in.c_str());
     }
     else if (id == "W")
     {
@@ -714,7 +715,7 @@ bool WXT510::DecodeXU(const string& in)
     size_t N = 0;
     string value;
 
-    pLog->Log("# XU Response.\n");
+    pLog->Log("# XU Response: %s\n", in.c_str());
     while(getline(sstream, token, ','))
     {
 	// NOT AS STRAIGHTFORWARD!
@@ -817,7 +818,7 @@ bool WXT510::DecodeXF(const string& in)
     size_t N = 0;
     string value;
 
-    pLog->Log("# XF Response.\n");
+    pLog->Log("# XF Response.%s\n",in.c_str());
     while(getline(sstream, token, ','))
     {
 	if((N = token.find("=")) != string::npos)

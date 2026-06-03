@@ -289,14 +289,12 @@ bool Weather::ReadResponse(void)
 bool Weather::Command(const string& cmd)
 {
     SET_DEBUG_STACK;
-    const char CR = 13;
-    const char LF = 10;
 
+    string toSend = cmd + "\r\n";
     if(Debug(0))
     {
-	CLogger::GetThis()->LogTime(" Command %s%c%c", cmd.c_str(),CR,LF);
+	CLogger::GetThis()->LogTime(" Command %s", toSend.c_str());
     }
-    string toSend = cmd + "\n";
     fSerialIO->Write((unsigned char *)toSend.c_str(), toSend.size());
     // See if there is any response to this command, many do not have returns. 
     return true;
