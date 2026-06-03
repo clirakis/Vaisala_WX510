@@ -29,8 +29,7 @@ def main(cmd):
 
     #command = "0SU\r\n"
     command = "0" + cmd + "\r\n"
-    #pser.write(command.encode())
-    pser.write(command)
+    pser.write(command.encode())
     line = pser.readline()
     print("Response: ", line)
     
