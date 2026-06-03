@@ -397,6 +397,7 @@ bool Weather::Setup(void)
     SetAutomaticInterval(5);  // 5 Seconds between messages. 
     QueryCommunication();     // Get the status of the setups. 
     QueryGeneral();
+    QuerySetup();
 
     return true;
 }

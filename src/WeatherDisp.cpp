@@ -361,11 +361,11 @@ void Weather_Display::display_all(const WXT510 *pW)
     col = LEFT_AREA;
   
     wmove  (fVin, row, col);
-    wprintw(fVin, "%4.1f",pW->WindAverage());
+    wprintw(fVin, "%6.1f",pW->WindAverage());
     row++;
     
     wmove  (fVin, row, col);
-    wprintw(fVin, "%5.2f", pW->Temperature());
+    wprintw(fVin, "%4.2f", pW->Temperature());
     row++;
     
     wmove  (fVin, row, col);
@@ -387,7 +387,7 @@ void Weather_Display::display_all(const WXT510 *pW)
     row = STATUS_AREA;
     col = RIGHT_AREA;
     wmove  (fVin, row, col);
-    wprintw(fVin, "%4.1f", pW->WindDir());
+    wprintw(fVin, "%6.1f", pW->WindDir());
     row++;
 
     wmove  (fVin, row, col);

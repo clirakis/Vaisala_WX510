@@ -211,6 +211,7 @@ bool WXT510::Decode(const string &in)
     else if (id == "W")
     {
 	// Wind
+	pLog->LogTime("Wind message: %s\n", in.c_str());
     }
     else if (id == "X")
     {
