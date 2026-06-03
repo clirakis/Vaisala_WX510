@@ -7,7 +7,7 @@ import datetime
 
 
 
-def main():
+def main(cmd):
     CR=0x0D
     LF=0x0A
     SerialPort = "/dev/ttyUSB0"
@@ -27,11 +27,13 @@ def main():
         print("Error opening serial port.\n")
         exit()
 
-    command = "0SU\r\n"
-    pser.write(command.encode())
+    #command = "0SU\r\n"
+    command = "0" + cmd + "\r\n"
+    #pser.write(command.encode())
+    pser.write(command)
     line = pser.readline()
     print("Response: ", line)
     
 
 if __name__ == '__main__':
-    main()
+    main(sys.argv[1])
