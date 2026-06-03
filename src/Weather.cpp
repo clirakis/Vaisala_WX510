@@ -246,6 +246,10 @@ bool Weather::ReadResponse(void)
     if (rc>0)
     {
 	TimeTag();
+	if (Debug(1))
+	{
+	    CLogger::GetThis()->LogTime("%s", line);
+	}
 	if(fPDisplay)
 	{
 	    fPDisplay->WriteMsgToScreen(line);
