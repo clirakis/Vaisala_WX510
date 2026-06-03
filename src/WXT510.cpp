@@ -239,7 +239,8 @@ bool WXT510::Decode(const string &in)
 	}
 	else
 	{
-	    pLog->LogTime(" Input not decoded. %s", in.c_str());
+	    pLog->LogTime(" Input not decoded, id: %s, string: %s", 
+			  id.c_str(), in.c_str());
 	}
     }
     else

@@ -44,7 +44,7 @@ Weather* Weather::fWeather;
  * thread control for the display if selected. 
  */
 static pthread_t d_thread;
-
+const int NVar = 12;
 
 /**
  ******************************************************************
@@ -598,6 +598,47 @@ bool Weather::Configure(void)
 
     return true;
 }
+/**
+ ******************************************************************
+ *
+ * Function Name : LogData
+ *
+ * Description :
+ *
+ * Inputs :
+ *
+ * Returns :
+ *
+ * Error Coditions :
+ * 
+ * Unit Tested on: 
+ *
+ * Unit Tested by: CBL
+ *
+ *
+ *******************************************************************
+ */
+void Weather::LogData(void)
+{
+    SET_DEBUG_STACK;
+    double t = (double) Time().tv_nsec;
+    t *= 1.0e-9;
+    t += (double) Time().tv_sec;
+    
+    f5Logger->FillInternalVector(t,                  0);
+    f5Logger->FillInternalVector(WindAverage(),      1);
+    f5Logger->FillInternalVector(WindDir(),          2);
+    f5Logger->FillInternalVector(Temperature(),      3);
+    f5Logger->FillInternalVector(Humidity(),         4);
+    f5Logger->FillInternalVector(Pressure(),         5);
+    f5Logger->FillInternalVector(RainAccumulation(), 6);
+    f5Logger->FillInternalVector(RainIntensity(),    7);
+    f5Logger->FillInternalVector(RainDuration(),     8);
+    f5Logger->FillInternalVector(HailAccumulation(), 9);
+    f5Logger->FillInternalVector(HailIntensity(),   10);
+    f5Logger->FillInternalVector(HailDuration(),    11);
+    f5Logger->Fill();
+}
 
 /**
  ******************************************************************
@@ -629,6 +670,10 @@ void Weather::Do(void)
     while(fRun)
     {
 	ReadResponse();
+	if(fLogging)
+	{
+	    LogData();
+	}
 	sleep(1);
 	count++;
     }
@@ -658,9 +703,9 @@ void Weather::Do(void)
 bool Weather::OpenLogFile(void)
 {
     SET_DEBUG_STACK;
-#if 0
+
     // USER TO FILL IN.
-    const char *Names = "Time:Lat:Lon:Z:NSV:PDOP:HDOP:VDOP:TDOP:VE:VN:VZ";
+    const char *Names = "Time:WAvg:WDAvg:Temp:Hum:Pres:RAcc:RInt:RDur:HAcc:HInt:HDir";
     CLogger *pLogger = CLogger::GetThis();
     /* Give me a file name.  */
     const char* name = fn->GetUniqueName();
@@ -684,7 +729,7 @@ bool Weather::OpenLogFile(void)
     time(&now);
     strftime (msg, sizeof(msg), "%m-%d-%y %H:%M:%S", gmtime(&now));
     pLogger->Log("# changed file name %s at %s\n", name, msg);
-
+#if 0
     /*
      * If the IPC is realized, put the current filename into it.
      */ 
@@ -692,9 +737,9 @@ bool Weather::OpenLogFile(void)
     {
 	fIPC->UpdateFilename(name);
     }
-    
+#endif    
     fChangeFile = false;
-#endif
+
     return true;
 }
 /**
