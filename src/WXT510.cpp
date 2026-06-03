@@ -163,69 +163,77 @@ bool WXT510::Decode(const string &in)
      * third tells more about the message for decoding. In the case
      * of an 'R' message it is 0,1,2,3
      */
-    string id  = in.substr(1,1);
-    string id2 = in.substr(2,1);
-    string toParse = in.substr(4);
-    if (id == "R")
+    if (in.size()>4)
     {
-	/* 
-	 * Oddball message 0Ra=1.0185B,Rc=1.58M,Th=15.6C,Vh=12.2N\r\n 
-	 * Ra ??
-	 * Rc Rain amount
-	 * and so on, middle of message? 
-	 */
-	int type = (int) id2[0]; //stoi(id2);
-	switch(type)
+	string id  = in.substr(1,1);
+	string id2 = in.substr(2,1);
+	string toParse = in.substr(4);
+	if (id == "R")
 	{
-	case '0':
-	    DecodeR0(toParse);
-	    break;
-	case '1':
-	    DecodeR1(toParse);
-	    break;
-	case '2':
-	    DecodeR2(toParse);
-	    break;
-	case '3':
-	    DecodeR3(toParse);
-	    break;
-	case '5':
-	    DecodeR5(toParse);
-	    break;
-	case 'U':
-	    // Precipitation
-	    pLog->LogTime("Precip.\n");
-	    break;
-	default:
-	    pLog->LogTime("Input not recognized: %s\n", in.c_str());
-	    return false;
-	    break;
+	    /* 
+	     * Oddball message 0Ra=1.0185B,Rc=1.58M,Th=15.6C,Vh=12.2N\r\n 
+	     * Ra ??
+	     * Rc Rain amount
+	     * and so on, middle of message? 
+	     */
+	    int type = (int) id2[0]; //stoi(id2);
+	    switch(type)
+	    {
+	    case '0':
+		DecodeR0(toParse);
+		break;
+	    case '1':
+		DecodeR1(toParse);
+		break;
+	    case '2':
+		DecodeR2(toParse);
+		break;
+	    case '3':
+		DecodeR3(toParse);
+		break;
+	    case '5':
+		DecodeR5(toParse);
+		break;
+	    case 'U':
+		// Precipitation
+		pLog->LogTime("Precip.\n");
+		break;
+	    default:
+		pLog->LogTime("Input not recognized: %s\n", in.c_str());
+		return false;
+		break;
 	    
+	    }
 	}
-    }
-    else if (id == "S")
-    {
-	// Supervisor
-	pLog->LogTime("Supervisor message: %s\n", in.c_str());
-    }
-    else if (id == "W")
-    {
-	// Wind
-	pLog->LogTime("Wind message: %s\n", in.c_str());
-    }
-    else if (id == "X")
-    {
-	SET_DEBUG_STACK;
-	// Supervisor messages.
-	if(id2 == "U")
+	else if (id == "S")
 	{
-	    // response to query configuration
-	    DecodeXU(toParse);
+	    // Supervisor
+	    pLog->LogTime("Supervisor message: %s\n", in.c_str());
 	}
-	else if(id2=="F")
+	else if (id == "W")
 	{
-	    DecodeXF(toParse);
+	    // Wind
+	    pLog->LogTime("Wind message: %s\n", in.c_str());
 	}
+	else if (id == "X")
+	{
+	    SET_DEBUG_STACK;
+	    // Supervisor messages.
+	    if(id2 == "U")
+	    {
+		// response to query configuration
+		DecodeXU(toParse);
+	    }
+	    else if(id2=="F")
+	    {
+		DecodeXF(toParse);
+	    }
+	}
+    }
+    else
+    {
+	pLog->LogTime(" Decode, short message. %s", in.c_str());
+	return false;
     }
     // FIXME, need to add additional messages. 
     return true;
