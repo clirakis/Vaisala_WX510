@@ -168,7 +168,15 @@ bool WXT510::Decode(const string &in)
 	string id  = in.substr(1,1);
 	string id2 = in.substr(2,1);
 	string toParse = in.substr(4);
-	if (id == "R")
+	if (id == "C")
+	{
+	    /*
+	     * Units for each measurement, this is not 
+	     * documented in the manual. 
+	     */
+	    pLog->LogTime(" Units selected: %s", in.c_str());
+	}
+	else if (id == "R")
 	{
 	    /* 
 	     * Oddball message 0Ra=1.0185B,Rc=1.58M,Th=15.6C,Vh=12.2N\r\n 
