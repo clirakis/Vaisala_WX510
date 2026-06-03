@@ -229,6 +229,10 @@ bool WXT510::Decode(const string &in)
 		DecodeXF(toParse);
 	    }
 	}
+	else
+	{
+	    pLog->LogTime(" Input not decoded. %s", in.c_str());
+	}
     }
     else
     {
