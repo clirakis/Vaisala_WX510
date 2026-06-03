@@ -428,6 +428,7 @@ bool Weather::Configure(void)
     SET_DEBUG_STACK;
     CLogger *pLog = CLogger::GetThis();
     string cmd;
+    char sfmt[128];
 
     pLog->LogTime(" Configure --------------\n");
     /*
@@ -465,8 +466,10 @@ bool Weather::Configure(void)
      * 16 - Spare 
      * Right most
      */
-    cmd = string("0WU,R=1111110011111100,I=1,A=30,U=M,F=4");
-    Command(cmd);
+    snprintf(sfmt, sizeof(sfmt), "0WU,R=1111110011111100,I=%d,A=30,U=M,F=4",
+	fUpdateInterval);
+    //cmd = string("0WU,R=1111110011111100,I=1,A=30,U=M,F=4");
+    Command(sfmt);
 
     /*
      * Turn it off
