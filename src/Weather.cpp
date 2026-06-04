@@ -510,8 +510,10 @@ bool Weather::Configure(void)
      * Right most
      *
      */
-    cmd = string("0TU,R=1111000011110000,I=5,P=B,T=C");
-    Command(cmd);
+    snprintf(sfmt, sizeof(sfmt),"0TU,R=1111000011110000,I=%d,P=B,T=C",
+	     fUpdateInterval); 
+    //cmd = string("0TU,R=1111000011110000,I=5,P=B,T=C");
+    Command(sfmt);
 
     /*
      * Precipitation - R3
@@ -584,7 +586,7 @@ bool Weather::Configure(void)
      * Right most
      *
      */
-    cmd = string("0RU,R=1111110011111100,I=2,U=M,S=M,M=R,Z=A");
+    cmd = string("0RU,R=1111110011111100,I=120,U=M,S=M,M=R,Z=A");
     Command(cmd);
 
     /*
