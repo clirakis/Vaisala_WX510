@@ -25,12 +25,12 @@ LIBS += -L$(HDF5LIB) -lconfig++
 # Rules to make the object files depend on the sources.
 SRC     = 
 SRCCPP  = main.cpp Weather.cpp WXT510.cpp UserSignals.cpp \
-	Factory.cpp WeatherDisp.cpp
+	Factory.cpp WeatherDisp.cpp smIPC.cpp
 
 SRCS    = $(SRC) $(SRCCPP)
 
 HEADERS = Weather.hh WXT510.hh UserSignals.hh Version.hh \
-	Factory.hh WeatherDisp.hh	
+	Factory.hh WeatherDisp.hh smIPC.hh
 
 # When we build all, what do we build?
 all:      $(TARGET)
