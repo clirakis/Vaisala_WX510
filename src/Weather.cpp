@@ -397,7 +397,7 @@ bool Weather::Setup(void)
     ResetMeasurement();
     sleep(1);
 
-    SetProtocol("A");         // ASCII Automatic, see manualpage 63
+    SetProtocol("P");         // ASCII Automatic, see manualpage 63
     SetAutomaticInterval(5);  // 5 Seconds between messages. 
     QueryCommunication();     // Get the status of the setups. 
     QueryGeneral();
