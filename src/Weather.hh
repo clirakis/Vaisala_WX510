@@ -27,6 +27,7 @@
 #  include "WXT510.hh"
 class Weather_Display;
 class SerialIO;
+class WX_IPC;
 
 class Weather : public WXT510
 {
@@ -160,6 +161,7 @@ private:
 
     bool Command(const string& cmd);
 
+    WX_IPC*      fIPC;
 
     /*!
      * Setup, the way I want it to respond

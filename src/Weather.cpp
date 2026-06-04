@@ -37,6 +37,7 @@ using namespace libconfig;
 #include "debug.h"
 #include "SerialIO.h"
 #include "WeatherDisp.hh"
+#include "smIPC.hh"
 
 Weather* Weather::fWeather;
 
@@ -80,6 +81,7 @@ Weather::Weather(const char* ConfigFile) : WXT510()
     fSerialIO       = NULL;
     fSerialPortName = "/dev/ttyUSB1";
     fPDisplay       = NULL;
+    fIPC            = NULL;
 
     /* 
      * Set defaults for configuration file. 
@@ -152,6 +154,16 @@ Weather::Weather(const char* ConfigFile) : WXT510()
 	}
     }
 
+    fIPC = new WX_IPC();
+    if (fIPC->Error() != 0)
+    {
+	Logger->LogError(__FILE__, __LINE__,'W',
+				     "Could not initialize IPC.");
+	fIPC = NULL;
+	SetError(-2); 
+	return;
+    }
+
     /*
      * Do any setup specific to the instrument 
      */
@@ -205,7 +217,7 @@ Weather::~Weather(void)
 	Logger->LogError(__FILE__,__LINE__, 'W', 
 			 "Failed to write config file.\n");
     }
-
+    delete fIPC;
     delete fSerialIO;
 
 
@@ -249,6 +261,10 @@ bool Weather::ReadResponse(void)
 	if (Debug(1))
 	{
 	    CLogger::GetThis()->LogTime("%s", line);
+	}
+	if(fIPC)
+	{
+	    fIPC->Update(line);
 	}
 	if(fPDisplay)
 	{
