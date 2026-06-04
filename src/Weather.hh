@@ -20,6 +20,7 @@
  */
 #ifndef __WEATHER_hh_
 #define __WEATHER_hh_
+#  include <string>
 #  include "CObject.hh" // Base class with all kinds of intermediate
 #  include "H5Logger.hh"
 #  include "filename.hh"
@@ -136,7 +137,7 @@ private:
     /*! 
      * Configuration file name. 
      */
-    char*        fConfigFileName;
+    std::string  fConfigFileName;
 
     /* Collection of configuration parameters. */
     bool         fLogging;       /*! Turn logging on. */

@@ -93,7 +93,7 @@ Weather::Weather(const char* ConfigFile) : WXT510()
 	return;
     }
 
-    fConfigFileName = strdup(ConfigFile);
+    fConfigFileName = ConfigFile;
     if(!ReadConfiguration())
     {
 	SetError(ECONFIG_READ_FAIL,__LINE__);
@@ -188,6 +188,11 @@ Weather::~Weather(void)
     SET_DEBUG_STACK;
     CLogger *Logger = CLogger::GetThis();
 
+
+    /* Clean up */
+    delete f5Logger;
+    f5Logger = NULL;
+
     // Kill the display thread.
     fPDisplay->Stop();
     delete fPDisplay;
@@ -200,13 +205,8 @@ Weather::~Weather(void)
 	Logger->LogError(__FILE__,__LINE__, 'W', 
 			 "Failed to write config file.\n");
     }
-    free(fConfigFileName);
 
     delete fSerialIO;
-
-    /* Clean up */
-    delete f5Logger;
-    f5Logger = NULL;
 
 
     // Make sure all file streams are closed
@@ -878,13 +878,13 @@ bool Weather::WriteConfiguration(void)
     {
 	pCFG->writeFile(fConfigFileName);
 	Logger->Log("# New configuration successfully written to: %s\n",
-		    fConfigFileName);
+		    fConfigFileName.c_str());
 
     }
     catch(const FileIOException &fioex)
     {
 	Logger->Log("# I/O error while writing file: %s \n",
-		    fConfigFileName);
+		    fConfigFileName.c_str());
 	delete pCFG;
 	return(false);
     }
