@@ -30,7 +30,7 @@ public:
     /*! Destructor */
     ~WX_IPC(void);
     /*! Send the data */
-    void Update(const string& message);
+    void Update(const char* message);
     /*! provide shared memory for inbound commands. */
     void ProcessCommands(void);
 

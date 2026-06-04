@@ -202,7 +202,7 @@ void WX_IPC::ProcessCommands(void)
  *
  *******************************************************************
  */
-void WX_IPC::Update(const string& message)
+void WX_IPC::Update(const char* message)
 {
     SET_DEBUG_STACK;
     char toSend[128];
@@ -210,7 +210,7 @@ void WX_IPC::Update(const string& message)
     {
 	SET_DEBUG_STACK;
 	// Limit the size of the message
-	snprintf( toSend, sizeof(toSend),"%s", message.c_str());
+	snprintf( toSend, sizeof(toSend),"%s", message);
         pSM_R0->PutData(toSend);
 	ProcessCommands();
     }
