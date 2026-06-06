@@ -200,9 +200,6 @@ Weather::~Weather(void)
     SET_DEBUG_STACK;
     CLogger *Logger = CLogger::GetThis();
 
-    Logger->LogTime("Weather destructor called. \n");
- 
-    Logger->LogTime("Stop Weather Display. \n");
     // Kill the display thread.
     if(fDisplay)
     {
@@ -210,7 +207,6 @@ Weather::~Weather(void)
 	delete fPDisplay;
 	fPDisplay = NULL;
     }
-    Logger->LogTime("Write Config. \n");
 
     // Do some other stuff as well. 
     if(!WriteConfiguration())
@@ -219,9 +215,7 @@ Weather::~Weather(void)
 	Logger->LogError(__FILE__,__LINE__, 'W', 
 			 "Failed to write config file.\n");
     }
-    Logger->LogTime("IPC Delete. \n");
     delete fIPC;
-    Logger->LogTime("Serial Delete. \n");
     delete fSerialIO;
 
     // Make sure all file streams are closed
