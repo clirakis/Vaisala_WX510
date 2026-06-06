@@ -204,10 +204,12 @@ Weather::~Weather(void)
  
     Logger->LogTime("Stop Weather Display. \n");
     // Kill the display thread.
-    fPDisplay->Stop();
-    delete fPDisplay;
-    fPDisplay = NULL;
-
+    if(fDisplay)
+    {
+	fPDisplay->Stop();
+	delete fPDisplay;
+	fPDisplay = NULL;
+    }
     Logger->LogTime("Write Config. \n");
 
     // Do some other stuff as well. 
