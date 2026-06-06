@@ -157,6 +157,9 @@ private:
      * Open the data logger. 
      */
     bool OpenLogFile(void);
+    void UpdateFileName(void);
+
+    /* Main event loop */
     void LogData(void);
 
     bool Command(const string& cmd);

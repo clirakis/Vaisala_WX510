@@ -200,15 +200,15 @@ Weather::~Weather(void)
     SET_DEBUG_STACK;
     CLogger *Logger = CLogger::GetThis();
 
-
-    /* Clean up */
-    delete f5Logger;
-    f5Logger = NULL;
-
+    Logger->LogTime("Weather destructor called. \n");
+ 
+    Logger->LogTime("Stop Weather Display. \n");
     // Kill the display thread.
     fPDisplay->Stop();
     delete fPDisplay;
     fPDisplay = NULL;
+
+    Logger->LogTime("Write Config. \n");
 
     // Do some other stuff as well. 
     if(!WriteConfiguration())
@@ -217,12 +217,17 @@ Weather::~Weather(void)
 	Logger->LogError(__FILE__,__LINE__, 'W', 
 			 "Failed to write config file.\n");
     }
+    Logger->LogTime("IPC Delete. \n");
     delete fIPC;
+    Logger->LogTime("Serial Delete. \n");
     delete fSerialIO;
-
 
     // Make sure all file streams are closed
     Logger->Log("# Weather closed.\n");
+
+    /* Clean up */
+    delete f5Logger;
+    f5Logger = NULL;
     SET_DEBUG_STACK;
 }
 
@@ -694,6 +699,12 @@ void Weather::Do(void)
 
     while(fRun)
     {
+	/* Check to see if the logging interval has rolled over. */
+	if (fn->ChangeNames())
+	{
+	    UpdateFileName();
+	}
+
 	ReadResponse();
 	if(fLogging)
 	{
@@ -702,6 +713,7 @@ void Weather::Do(void)
 	sleep(1);
 	count++;
     }
+    CLogger::GetThis()->LogTime("Loop Stops.\n");
     SET_DEBUG_STACK;
 }
 
@@ -767,6 +779,49 @@ bool Weather::OpenLogFile(void)
 
     return true;
 }
+/**
+ ******************************************************************
+ *
+ * Function Name : UpdateFileName
+ *
+ * Description : Flush and close current log file, update the name, 
+ *               and reopen.
+ *
+ * Inputs : NONE
+ *
+ * Returns : NONE
+ *
+ * Error Conditions : NONE
+ * 
+ * Unit Tested on: 
+ *
+ * Unit Tested by: CBL
+ *
+ *
+ *******************************************************************
+ */
+void Weather::UpdateFileName(void)
+{
+    SET_DEBUG_STACK;
+    /*
+     * flush and close existing file
+     * get a new unique filename
+     * reset the timer
+     * and go!
+     *
+     * Check to see that logging is enabled. 
+     */
+    if(f5Logger)
+    {
+	// This will close and flush the existing logfile. 
+	delete f5Logger;
+	f5Logger = NULL;
+	// Now reopen
+	OpenLogFile();
+    }
+    SET_DEBUG_STACK;
+}
+
 /**
  ******************************************************************
  *
