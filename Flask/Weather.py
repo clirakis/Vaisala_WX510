@@ -65,140 +65,57 @@ def index():
 @app.route('/user')
 def user():
     return render_template('user.html',current_time=datetime.utcnow())
-#
-# GPS Tab/page whatever!
-#
-@app.route('/gps',methods=['GET','POST'])
-def gps():
-
-    if request.method == 'POST':
-        # POST is the form sent some data. 
-        print('GPS POST')
-
-        if request.form.get('refresh') == 'Refresh':
-            print("GPS do refresh")
-        else:
-            print("method unknown")
-
-    elif request.method == 'GET':
-        # GET is a give me some data
-        print('GPS GET')
-
-    # Get the GPS data from shared memory
-    MyGGA.Read()
-    MyVTG.Read()
-
-    #
-    # speed is in Knots.
-    #
-    speed = MyVTG.fSpeedKnots * 1852.0/3600.0
-    #
-    # format the data into strings. Too many digits otherwise.
-    #
-    lat    = np.rad2deg(MyGGA.fLatitude)
-    lon    = np.rad2deg(MyGGA.fLongitude)
-    slat   = '{:06.6f}'.format(lat)
-    slon   = '{:06.6f}'.format(lon)
-    salt   = '{:06.2f}'.format(MyGGA.fAltitude)
-    sgeo   = '{:04.2f}'.format(MyGGA.fGeoidSep)
-    sspeed = '{:03.2f}'.format(speed)
-    sTrue  = '{:03.1f}'.format(MyVTG.fTrue)
-    sMag   = '{:03.1f}'.format(MyVTG.fMagnetic)
-
-    # Add the data to the graph. 
-    if (lat>41.0) and (lat<41.8) and (lon>-72.0):
-        MyGraph.AddPoint( lon, lat)
-
-    return render_template('GPS.html',current_time=datetime.utcnow(),
-                           Latitude=slat,
-                           Longitude=slon,
-                           Altitude=salt,
-                           Geiod=sgeo,
-                           FixTime=MyGGA.fSec,
-                           Speed=sspeed,
-                           CompassTrue=sTrue,
-                           CompassMagnetic=sMag,
-                           FOffset=0.0,
-                           FixType=FixStr(MyGGA.fFix),
-                           logFileName=CurrentFileName
-                           )
-
-@app.route('/imu', methods=['GET','POST'])
+@app.route('/Weather', methods=['GET','POST'])
 def imu():
     if request.method == 'POST':
         # POST is the form sent some data. 
-        print('IMU POST')
+        print('Weather POST')
 
         if request.form.get('refresh') == 'Refresh':
-            print("IMU do refresh")
+            print("Weather do refresh")
         else:
             print("method unknown")
 
     elif request.method == 'GET':
         # GET is a give me some data
-        print('IMU GET')
-    MyIMU.Read()
+        print('Weather GET')
+##    MyIMU.Read()
 
-    sTemperature = '{:03.1f}'.format(MyIMU.fTemperature)
-    sAx = '{:06.6f}'.format(MyIMU.fAcc[0])
-    sAy = '{:06.6f}'.format(MyIMU.fAcc[1])
-    sAz = '{:06.6f}'.format(MyIMU.fAcc[2])
-    sGx = '{:06.6f}'.format(MyIMU.fGyro[0])
-    sGy = '{:06.6f}'.format(MyIMU.fGyro[1])
-    sGz = '{:06.6f}'.format(MyIMU.fGyro[2])
-    sMx = '{:06.6f}'.format(MyIMU.fMagnetic[0])
-    sMy = '{:06.6f}'.format(MyIMU.fMagnetic[1])
-    sMz = '{:06.6f}'.format(MyIMU.fMagnetic[2])
+##    sTemperature = '{:03.1f}'.format(MyIMU.fTemperature)
+##    sAx = '{:06.6f}'.format(MyIMU.fAcc[0])
+##    sAy = '{:06.6f}'.format(MyIMU.fAcc[1])
+##    sAz = '{:06.6f}'.format(MyIMU.fAcc[2])
+##    sGx = '{:06.6f}'.format(MyIMU.fGyro[0])
+##    sGy = '{:06.6f}'.format(MyIMU.fGyro[1])
+##    sGz = '{:06.6f}'.format(MyIMU.fGyro[2])
+##    sMx = '{:06.6f}'.format(MyIMU.fMagnetic[0])
+##    sMy = '{:06.6f}'.format(MyIMU.fMagnetic[1])
+##    sMz = '{:06.6f}'.format(MyIMU.fMagnetic[2])
 
     
-    return render_template('IMU.html',
-                           current_time=datetime.utcnow(),
-                           IMUTime=datetime.utcnow(),
-                           Fraction=0.1,
-                           Temperature=sTemperature,
-                           AX=sAx,AY=sAy,AZ=sAz,
-                           GX=sGx,GY=sGy,GZ=sGz,
-                           MX=sMx,MY=sMy,MZ=sMz,
-                           )
+##    return render_template('IMU.html',
+##                           current_time=datetime.utcnow(),
+##                           IMUTime=datetime.utcnow(),
+##                           Fraction=0.1,
+##                           Temperature=sTemperature,
+##                           AX=sAx,AY=sAy,AZ=sAz,
+##                           GX=sGx,GY=sGy,GZ=sGz,
+##                           MX=sMx,MY=sMy,MZ=sMz,
+##                           )
+    return render_template('IMU.html')
 
-# If this is not GET and POST it fails
-# but with GET and POST it gets called on a refresh. 
-@app.route('/filename', methods=['GET', 'POST'])
-def filename():
-    """
-    Request a filename change. 
-
-    response = make_response("Ok")
-    response.mimetype = 'text/plain'
-    return response
-    This return of the gps call works!!!
-    Now have to tickle the shared memory
-    """
-    if request.method == 'POST':
-        COMM.Write("CF", 2)
-    return render_template("Done.html")
-
-@app.route('/marker', methods=['GET', 'POST'])
-def marker():
-    """
-    Lay down a marker in the h5 file
-
-    """
-    if request.method == 'POST':
-        COMM.Write("CM", 2)
-    return render_template("Done.html")
 
 @app.route('/testme')
 def testme():
     return render_template('testme.html')
 
-@app.route('/plotGPS')
-def plotGPS():
-    global MyGraph
-    graphdata = MyGraph.InlinePlot()
-    response = make_response(graphdata.getvalue())
-    response.mimetype = 'image/png'
-    return response
+##@app.route('/plotGPS')
+##def plotGPS():
+##    global MyGraph
+##    graphdata = MyGraph.InlinePlot()
+##    response = make_response(graphdata.getvalue())
+##    response.mimetype = 'image/png'
+##    return response
 
 if __name__ == "__main__":
     """

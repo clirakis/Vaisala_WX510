@@ -1,0 +1,101 @@
+<!--
+07-Jun-26 This makes it's own tab page. 
+Setting up a grid format 
+Flask bootstrap is v3.3.7.1
+WXT510 page
+-->
+{% extends "base.html" %}
+
+{% block title %}Flasky{% endblock %}
+
+{% block page_content %}
+<div class="page-header">
+<hr>
+  <h1> IMU Data </h1>
+    {{ moment.include_moment()}}
+    <p> Local Computer time: {{moment(current_time).format('LLL')}}.</p>
+    <meta http-equiv="refresh" content="5">
+</div>
+<div class="container">
+  {{ moment.include_moment()}}
+  <style> 
+     table, th, td {
+        border: 4px solid black
+     }
+  </style>
+  <!-- Top Row Time Frac and temperature -->
+  <div class="row">
+    <div class="col-md-1">
+      Time:
+    </div>
+    <div class="col-md-3">
+      {{moment(WXTime).format('LLL')}}
+    </div>
+    <div class="col-md-1">
+      Fraction:
+    </div>
+    <div class="col-md-2">
+      {{ Fraction}} Sec
+    </div>
+  </div>
+  <hr>
+  <table sytle="width:100%">
+    <tr>
+      <th width="25%"> Title </th>
+      <th width="25%"> Value </th>
+    </tr>
+    <!-- row -->
+    <tr> 
+      <td> Temperature (C) </td>
+      <td style="text-align: center"> {{Temperature}} </td>
+    </tr>
+    <!-- row -->
+    <tr>
+      <td> Humidity </td>
+      <td style="text-align: center"> {{Humidity}} </td>
+    </tr>
+  <!-- row -->
+    <tr>
+      <td> Pressure (Bar) </td> 
+      <td style="text-align: center"> {{Pressure}} </td>
+    </tr>
+  <!-- row -->
+    <tr>
+      <td>Wind Speed  </td> 
+      <td style="text-align: center"> {{Speed}} </td>
+    </tr>
+  <!-- row -->
+    <tr>
+      <td>Wind Direction  </td> 
+      <td style="text-align: center"> {{Direction}} </td>
+    </tr>
+  <!-- row -->
+    <tr>
+      <td> Rain Accumulation </td> 
+      <td style="text-align: center"> {{RAcuumulation}} </td>
+    </tr>
+  <!-- row -->
+    <tr>
+      <td>Rain Duration  </td> 
+      <td style="text-align: center"> {{RDuration}} </td>
+    </tr>
+  <!-- row -->
+    <tr>
+      <td>Hail Accumulation  </td> 
+      <td style="text-align: center"> {{HAccumulation}} </td>
+    </tr>
+  <!-- row -->
+    <tr>
+      <td>Hail Duration  </td> 
+      <td style="text-align: center"> {{HDuration}} </td>
+    </tr>
+  </table>
+</div> 
+<hr>
+<div class="container">
+  <form method = "post" action="/imu">
+    <input type="submit" value="Refresh" name="refresh"/>
+  </form>
+</div>
+
+{% endblock %}
