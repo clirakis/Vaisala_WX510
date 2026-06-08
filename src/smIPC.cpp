@@ -31,6 +31,7 @@ using namespace std;
 
 // 22-Feb-26 upped command size allocation to 512
 const size_t kCommandSize  = 512;          // Bytes of command data.
+const size_t kWeatherSize  = 128;
 static char zerobuf[kCommandSize];
 
 #define DEBUG_SM 0
@@ -72,7 +73,7 @@ WX_IPC::WX_IPC(void) : CObject()
     memset(zerobuf, 0, sizeof(zerobuf));
 
     /* Just a character buffer */
-    pSM_R0 = new SharedMem2("R0", 128, true);
+    pSM_R0 = new SharedMem2("R0", kWeatherSize, true);
     if (pSM_R0->CheckError())
     {
 	plogger->LogError(__FILE__, __LINE__, 'W',
@@ -205,12 +206,14 @@ void WX_IPC::ProcessCommands(void)
 void WX_IPC::Update(const char* message)
 {
     SET_DEBUG_STACK;
-    char toSend[128];
+    char toSend[kWeatherSize];
     if (pSM_R0)
     {
 	SET_DEBUG_STACK;
 	// Limit the size of the message
+	memset( toSend, 0, sizeof(toSend));
 	snprintf( toSend, sizeof(toSend),"%s", message);
+	cout << " to send: " << toSend << endl;
         pSM_R0->PutData(toSend);
 	ProcessCommands();
     }
