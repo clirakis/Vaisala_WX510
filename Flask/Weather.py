@@ -11,6 +11,7 @@ References:
 https://pypi.org/project/Flask-Bootstrap/
 https://flask-moment.readthedocs.io/en/latest/quickstart.html#rendering-timestamps-with-flask-moment
 https://getbootstrap.com/docs/3.4/css/
+https://flask.palletsprojects.com/en/stable/tutorial/factory/
  ===============================================================
 """
 from flask import (
@@ -21,110 +22,146 @@ from flask_bootstrap import Bootstrap
 from flask_moment import Moment
 from datetime import datetime
 import os
+import signal
+import sys
 import numpy as np
 from Plot.Graph import Graph
 
 # My local imports
 from PySM.Commands import Commands
 from PySM.smWXT510 import smWXT510
-
-
-app = Flask(__name__)
+from WX.wxt510 import wxt510
 
 """
-Everything is global, probably ought to tighten this up.
+This is a lot more clean than the way I was doing initialization!!
+08-Jun-26
 """
+logfile = open('sensor.log','w') 
 
-# This is straight from the documentation and should work. 
-bootstrap = Bootstrap(app)
-moment    = Moment(app)
-# create the classes
-R0    = smWXT510()
-COMM  = Commands()
+def signal_handler(sig, frame):
+    print('Termination signal received! Shutting down gracefully...')
+    # Close resources
+    #del pwxt
+    logfile.close()
 
-# Global Variable
-CurrentFileName = "NONE"
+    sys.exit(0)
 
-"""
-Initialize the ploting package.
-"""
-MyGraph = Graph()
+def create_app(test_config=None):
+    # create and configure the app
+    app = Flask(__name__, instance_relative_config=True)
 
-@app.errorhandler(404)
-def page_not_found(e):
-    return render_template('404.html'), 404
+    # ensure the instance folder exists
+    #os.makedirs(app.instance_path, exist_ok=True)
 
-@app.errorhandler(500)
-def internal_server_error(e):
-    return render_template('500.html'), 500
-
-@app.route('/')
-def index():
-    return render_template('index.html',current_time=datetime.utcnow()) 
-
-@app.route('/user')
-def user():
-    return render_template('user.html',current_time=datetime.utcnow())
-@app.route('/Weather', methods=['GET','POST'])
-def imu():
-    if request.method == 'POST':
-        # POST is the form sent some data. 
-        print('Weather POST')
-
-        if request.form.get('refresh') == 'Refresh':
-            print("Weather do refresh")
-        else:
-            print("method unknown")
-
-    elif request.method == 'GET':
-        # GET is a give me some data
-        print('Weather GET')
-##    MyIMU.Read()
-
-##    sTemperature = '{:03.1f}'.format(MyIMU.fTemperature)
-##    sAx = '{:06.6f}'.format(MyIMU.fAcc[0])
-##    sAy = '{:06.6f}'.format(MyIMU.fAcc[1])
-##    sAz = '{:06.6f}'.format(MyIMU.fAcc[2])
-##    sGx = '{:06.6f}'.format(MyIMU.fGyro[0])
-##    sGy = '{:06.6f}'.format(MyIMU.fGyro[1])
-##    sGz = '{:06.6f}'.format(MyIMU.fGyro[2])
-##    sMx = '{:06.6f}'.format(MyIMU.fMagnetic[0])
-##    sMy = '{:06.6f}'.format(MyIMU.fMagnetic[1])
-##    sMz = '{:06.6f}'.format(MyIMU.fMagnetic[2])
-
+    # Register handlers for SIGINT (Ctrl+C) and SIGTERM
+    signal.signal(signal.SIGINT, signal_handler)
+    signal.signal(signal.SIGTERM, signal_handler)
     
-##    return render_template('IMU.html',
-##                           current_time=datetime.utcnow(),
-##                           IMUTime=datetime.utcnow(),
-##                           Fraction=0.1,
-##                           Temperature=sTemperature,
-##                           AX=sAx,AY=sAy,AZ=sAz,
-##                           GX=sGx,GY=sGy,GZ=sGz,
-##                           MX=sMx,MY=sMy,MZ=sMz,
-##                           )
-    return render_template('IMU.html')
+    bootstrap = Bootstrap(app)
+    moment    = Moment(app)
+
+    pR0   = smWXT510()
+    COMM  = Commands()
+    pwxt  = wxt510()
+
+    logfile.write("# ---------------------------------------------\n")
+    logfile.write("# SYS-I-FILE: Weather.py \n");
+    logfile.write('# SYS-I-FILE: Logfile started: '+str(datetime.utcnow())+'\n')
+    pwxt.SetLogfile(logfile)
+
+    # Global Variable
+    CurrentFileName = "NONE"
 
 
-@app.route('/testme')
-def testme():
-    return render_template('testme.html')
-
-##@app.route('/plotGPS')
-##def plotGPS():
-##    global MyGraph
-##    graphdata = MyGraph.InlinePlot()
-##    response = make_response(graphdata.getvalue())
-##    response.mimetype = 'image/png'
-##    return response
-
-if __name__ == "__main__":
     """
-    This is our main entry point. I wonder if I could define all the
-    classes here.
+    Initialize the ploting package.
     """
-    # put my initialization in here. This one  
-    #
-    # Plotting tools.
-    #
-    moment.init_app(app)
-    app.run(host='0.0.0.0', port=5000, debug=True)
+    #MyGraph = Graph()
+
+
+    @app.errorhandler(404)
+    def page_not_found(e):
+        return render_template('404.html'), 404
+
+    @app.errorhandler(500)
+    def internal_server_error(e):
+        return render_template('500.html'), 500
+    
+    # a simple page that says hello
+    @app.route('/hello')
+    def hello():
+        return 'Hello, World!'
+
+    @app.route('/')
+    def index():
+        return render_template('index.html',current_time=datetime.utcnow()) 
+
+    @app.route('/testme')
+    def testme():
+        return render_template('testme.html')
+        return app
+
+
+    # This gets called every time a page finishes. Not when the app ends
+    @app.teardown_appcontext
+    def teardown_db(exception):
+        # Perform cleanup operations here
+        print("Application context is ending...")
+        #logfile.write('# Program end: '+str(datetime.utcnow())+'\n')
+        #logfile.close()
+        
+    @app.route('/user')
+    def user():
+        return render_template('user.html',current_time=datetime.utcnow())
+
+    @app.route('/wx', methods=['GET','POST'])
+    def wx():
+        if request.method == 'POST':
+            # POST is the form sent some data. 
+            print('Weather POST')
+
+            if request.form.get('refresh') == 'Refresh':
+                print("Weather do refresh")
+            else:
+                print("method unknown")
+
+        elif request.method == 'GET':
+            # GET is a give me some data
+            print('Weather GET')
+
+        if (pR0.error == 0):
+            pR0.Read()
+            input = pR0.R0
+        else:
+            input = "0R0,Dm=000#,Sm=0.0#,Ta=18.6C,Ua=59.4P,Pa=1.0141B,Rc=0.00M,Th=18.6C,Vh=13.7N\r\n"
+
+    #    input = "0R0,Dm=000#,Sm=0.0#,Ta=18.6C,Ua=59.4P,Pa=1.0141B,Rc=0.00M,Th=18.6C,Vh=13.7N\r\n"
+        pwxt.Decode(input,pwxt.logfile)
+
+        sTemperature   = '{:04.1f}'.format(pwxt.Temperature)
+        sPressure      = '{:06.4f}'.format(pwxt.Pressure)
+        sHumidity      = '{:06.6f}'.format(pwxt.Humidity)
+        sSpeed         = '{:04.1f}'.format(pwxt.WindSpeed.Average)
+        sDirection     = '{:06.6f}'.format(pwxt.WindDirection.Average)
+        sRAccumulation = '{:06.6f}'.format(pwxt.Rain_accumulation)
+        sRDuration     = '{:06.6f}'.format(pwxt.Rain_duration)
+        sHAccumulation = '{:06.6f}'.format(pwxt.Hail_accumulation)
+        sHDuration     = '{:06.6f}'.format(pwxt.Hail_duration)
+
+        return render_template('WX.html',
+                               current_time=datetime.utcnow(),
+                               WXTime=datetime.utcnow(),
+                               Temperature=sTemperature,
+                               Humidity=sHumidity,
+                               Pressure=sPressure,
+                               Speed=sSpeed,
+                               Direction=sDirection,
+                               RAccumulation=sRAccumulation,
+                               RDuration=sRDuration,
+                               HAccumulation=sHAccumulation,
+                               HDuration=sHDuration,
+                               )
+
+
+
+    return app

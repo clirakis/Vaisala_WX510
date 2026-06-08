@@ -28,7 +28,7 @@ class Commands(SharedMem2):
         # At the moment this is setup to send messages
         # not necessarily recieve replies. I should 
         #
-        params = {'name':'GPS_Commands', 'size': 512, 'server': False}
+        params = {'name':'WX_Commands', 'size': 512, 'server': False}
         # self is implied when using super.
         super().__init__(params)
         self.filename    = 'NONE'
@@ -57,5 +57,3 @@ class Commands(SharedMem2):
         rep += " ------------------------------------------------" + "\n"
         return rep
         
-# CF - Change Filename
-# GF - get filename

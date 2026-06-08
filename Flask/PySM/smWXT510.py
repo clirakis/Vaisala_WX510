@@ -23,8 +23,8 @@ import numpy as np
 class smWXT510(SharedMem2):
     def __init__(self):
         # 40 bytes used for base class
-        self.maxsize = 512
-        params = {'name':'GPS_Filename', 'size': self.maxsize, 'server': False}
+        self.maxsize = 128
+        params = {'name':'R0', 'size': self.maxsize, 'server': False}
 
         # self is implied when using super.
         super().__init__(params)
@@ -45,7 +45,7 @@ class smWXT510(SharedMem2):
         count = 0
         while ( (count < self.maxsize) and (self.inb[start+count] != 0)):
             count = count + 1
-        self.Filename = str(self.inb[start:start+count])
+        self.R0 = str(self.inb[start:start+count])
         
         print("Read:", self.Length, " ", self.R0)
         

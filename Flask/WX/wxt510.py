@@ -181,7 +181,7 @@ class wxt510:
         self.Composite          = 0
 
         self.FullCycle          = 0
-        self.Debug              = True
+        self.Debug              = False
         self.LogDecode          = 0
         self.Address            = 0
         self.Error              = 0
@@ -199,6 +199,7 @@ class wxt510:
         self.Delay              = 0
         self.Name               = 'NONE'
         self.Version            = 'NONE'
+        self.logfile            = None
 
         # return values for XF message
         self.factory            = FactoryG()
@@ -262,6 +263,7 @@ class wxt510:
         
         count = 0
         while count<10:
+            #print("Query : ",count)
             val = str(serial.readline())
             if len(val) > 3 :
                 # does the string contain the query?
@@ -271,10 +273,13 @@ class wxt510:
                     return val
                 # only fall through a finite number of times
                 # this is failing on the XF! command. the !
-                # screws it up. 
-                count = count + 1
+                # screws it up.
+#            elif (len(val)>0):
+#                print("Query response: ", val)
+                
+            count = count + 1
         if (count>9):
-              self.logfile.write("# PGM-E-QUERY: fallthrough: " + query)
+              self.logfile.write("# PGM-E-QUERY: fallthrough: " + query + "\n")
         self.Error = 1
         return 'NONE'
 
@@ -379,7 +384,7 @@ class wxt510:
         
         # reset the measurement data
         # this has no response. 
-        if self.Debug == 1 :
+        if self.Debug:
             self.logfile.write('# PGM-I-RESET: RESET MEASUREMENT\n')
         self.Command('0XZM', serial)
         time.sleep(1)
@@ -504,11 +509,14 @@ class wxt510:
         self.Command("0XZRI", serial)
 
     def SupervisorECNo(self, serial):
+        self.logfile.write('# PGM-I-DIAG: Supervisor ECNo ')
         self.Command("0SU,S=N", serial)
+        self.logfile.write('\n')
         
     def CheckSupervisor(self, serial):
+        self.logfile.write('# PGM-I-DIAG: Check supervisor\n')
         rv = self.Query('SU',serial)
-        self.logfile.write('# PGM-I-DIAG: Supervisor. ' + rv +'\n')
+        self.logfile.write('# PGM-I-DIAG: result ' + rv +'\n')
         
     def Decode(self, string, logfile) :
         """
@@ -546,7 +554,7 @@ class wxt510:
         
         # When debug is on, output the string and time.
 
-        if self.Debug==1 :
+        if self.Debug:
             now = datetime.datetime.now()
             #print str(now)+': '+string
             logfile.write('# PGM-D-DECODE:' + str(now) + ' input: ' + string)
@@ -556,13 +564,11 @@ class wxt510:
             logfile.write('# PGM-E-ERROR: ' + string)
             return
 
-        if string[1] == 'R' :
+        if '0R' in string :
              # life is good, perhaps, might be a response to XU
-             if string[2] == '=' :
-                 return
              message = int(string[2])
         else :
-            self.logfile.write('# PGM-E-DECODE: Message recieved not R messge.')
+            self.logfile.write('# PGM-E-DECODE: Not R messge.\n')
             return
 
         address = int(string[0])
@@ -880,8 +886,10 @@ class wxt510:
 
 
     def __del__(self):
-        now = datetime.datetime.now()
-        self.logfile.write('# PGM-I-DESTRUCTOR ' + str(now) + '\n')
+        if(self.logfile != None):
+            now = datetime.datetime.now()
+            if (not self.logfile.closed):
+                self.logfile.write('# PGM-I-DESTRUCTOR ' + str(now) + '\n')
 
 
 
