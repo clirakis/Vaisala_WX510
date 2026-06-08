@@ -213,7 +213,7 @@ void WX_IPC::Update(const char* message)
 	// Limit the size of the message
 	memset( toSend, 0, sizeof(toSend));
 	snprintf( toSend, sizeof(toSend),"%s", message);
-	cout << " to send: " << toSend << endl;
+	//cout << " to send: " << toSend << endl;
         pSM_R0->PutData(toSend);
 	ProcessCommands();
     }
