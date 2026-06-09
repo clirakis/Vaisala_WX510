@@ -219,6 +219,7 @@ class SharedMem2:
         #
         if (self.debug):
             print('Releasing the semaphore.')
+            print('inb size: ', len(self.inb))
         self.semaphore.release()
 
         #
