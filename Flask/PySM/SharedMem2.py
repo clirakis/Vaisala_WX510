@@ -189,7 +189,7 @@ class SharedMem2:
         start = self.bytes
         end   = self.bytes + nbytes
         if (self.debug):
-            print('start: ', start, ' end: ', end)
+            print('format: ', format, ' start: ', start, ' end: ', end)
             
         # advance pointer
         self.bytes += nbytes
