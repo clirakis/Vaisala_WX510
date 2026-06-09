@@ -47,7 +47,7 @@ class smWXT510(SharedMem2):
             count = count + 1
         print('Start: ', start, ' count: ', count)
         self.R0 = str(self.inb[start:start+count])
-        self.UnpackDone()
+        #self.UnpackDone()
         
         print("Read:", len(self.R0), " ", self.R0)
         
