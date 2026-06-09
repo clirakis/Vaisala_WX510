@@ -185,6 +185,7 @@ class SharedMem2:
             'I':4,
             'f':4,
             'l':4,
+            'L':4,
             'q':8,
             'Q':8,
             }[format]
@@ -238,9 +239,9 @@ class SharedMem2:
         # the size of this depends on the OS 32 bit or 64 bit
         # 
         #
-        self.Length                  = self.Unpack('l')
-        self.LastUpdate_Time_tv_sec  = self.Unpack('Q')
-        self.LastUpdate_Time_tv_nsec = self.Unpack('Q')
+        self.Length                  = self.Unpack('L')
+        self.LastUpdate_Time_tv_sec  = self.Unpack('L')
+        self.LastUpdate_Time_tv_nsec = self.Unpack('L')
         self.DoubleData              = self.Unpack('d')
         self.LAM                     = self.Unpack('l')
 
