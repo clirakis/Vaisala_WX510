@@ -46,6 +46,7 @@ class smWXT510(SharedMem2):
         while ( (count < self.maxsize) and (self.inb[start+count] != 0)):
             count = count + 1
         self.R0 = str(self.inb[start:start+count])
+        self.UnpackDone()
         
         print("Read:", self.Length, " ", self.R0)
         
