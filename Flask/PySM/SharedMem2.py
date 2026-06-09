@@ -188,6 +188,9 @@ class SharedMem2:
         # specify start and end of byte stream to unpack.
         start = self.bytes
         end   = self.bytes + nbytes
+        if (self.debug):
+            print('start: ', start, ' end: ', end)
+            
         # advance pointer
         self.bytes += nbytes
         return struct.unpack(format, self.inb[start:end])[0]
