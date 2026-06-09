@@ -45,10 +45,11 @@ class smWXT510(SharedMem2):
         count = 0
         while ( (count < self.maxsize) and (self.inb[start+count] != 0)):
             count = count + 1
+        print('Start: ', start, ' count: ', count)
         self.R0 = str(self.inb[start:start+count])
         self.UnpackDone()
         
-        print("Read:", self.Length, " ", self.R0)
+        print("Read:", len(self.R0), " ", self.R0)
         
     def Print(self):
         print('Filename: ', self.__Filename)
