@@ -10,9 +10,10 @@ def main():
             pR0.debug = True
     
     for i in range(20):
-         pR0.Read()
-         print("index ", i, " time ", pR0.LastUpdate_Time_tv_sec," value: ", pR0.R0)
-         time.sleep(1)
+        if(pR0.Read()):
+            print(' new data ')
+        print("index ", i, " time ", pR0.LastUpdate_Time_tv_sec," value: ", pR0.R0)
+        time.sleep(1)
          
          
 
