@@ -20,6 +20,7 @@ def main():
         val = pR0.R0
         print("index ", i, " time ", pR0.LastUpdate_Time_tv_sec," value: ", val)
         pwxt.Decode(val,logfile)
+        print ('Temp: ', pwxt.Temperature)
 
         time.sleep(1)
          
