@@ -4,7 +4,7 @@ from PySM.smWXT510 import smWXT510
 
 def main():
     pR0   = smWXT510()
-    pR0.debug = True
+    #pR0.debug = True
     
     for i in range(20):
          pR0.Read()
