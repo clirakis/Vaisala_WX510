@@ -239,7 +239,7 @@ class SharedMem2:
         # the size of this depends on the OS 32 bit or 64 bit
         # 
         #
-        self.Length                  = self.Unpack('L')
+        self.Length                  = self.Unpack('Q')
         self.LastUpdate_Time_tv_sec  = self.Unpack('Q')
         self.LastUpdate_Time_tv_nsec = self.Unpack('L')
         self.DoubleData              = self.Unpack('d')
@@ -371,7 +371,7 @@ class SharedMem2:
         print('-------------- RAW HEADER -----------------')
         for i in range(40):
             if ( i%10 == 0):
-                print(i,'\n : ', end="")
+                print("\n", i,': ', end="")
             ival = struct.unpack('B', self.inb[i:i+1])[0]
             print(hex(ival)," ", end="")
         print('\n END DUMP -------------------------')
