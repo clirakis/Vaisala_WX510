@@ -205,6 +205,7 @@ class SharedMem2:
         Lock the semaphore and read the data.
         """
         if (self.debug):
+            print('SM2 memory size: ', self.memory.size)
             print('SharedMem2 debug ================================')
             print('Acquiring semaphore.')
         self.semaphore.acquire()
