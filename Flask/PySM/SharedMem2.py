@@ -216,6 +216,7 @@ class SharedMem2:
         
         Lock the semaphore and read the data.
         """
+        rc = False         # assume we fail. 
         if (self.debug):
             print('SM2 memory size: ', self.memory.size)
             print('SharedMem2 debug ================================')
@@ -253,6 +254,7 @@ class SharedMem2:
         if dt != 0.0:
             self.LastRead_Time_tv_sec  = self.LastUpdate_Time_tv_sec
             self.LastRead_Time_tv_nsec = self.LastUpdate_Time_tv_nsec
+            rc = True
 
         if (self.debug):
             print ('--------------- SharedMem2 -----------------------')
@@ -265,7 +267,8 @@ class SharedMem2:
             print ("double: ",     self.DoubleData)
             print ("LAM bool: ",   self.LAM)
             print ('SharedMem2 debug end ============================ ')
-        #time.sleep(1)
+
+        return rc
 
     def TimeSinceLastUpdate(self):
         """

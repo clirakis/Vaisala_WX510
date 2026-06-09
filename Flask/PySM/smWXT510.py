@@ -39,16 +39,19 @@ class smWXT510(SharedMem2):
         """
         Read the data and put it into the local structure. 
         """
-        super().Read()
-        # Need to find where the string resides. Should start here
-        start = self.bytes
+        # if successful read, do more
+        if(super().Read()):
+            
+            # Need to find where the string resides. Should start here
+            start = self.bytes
+            count = 0
+            while ( (count < self.maxsize) and (self.inb[start+count] != 0)):
+                count = count + 1
 
-        count = 0
-        while ( (count < self.maxsize) and (self.inb[start+count] != 0)):
-            count = count + 1
-
-        self.R0 = str(self.inb[start:start+count])
-        self.UnpackDone()
+            self.R0 = str(self.inb[start:start+count])
+            self.UnpackDone()
+            return True
+        return False
         
     def Print(self):
         print('Filename: ', self.__Filename)
