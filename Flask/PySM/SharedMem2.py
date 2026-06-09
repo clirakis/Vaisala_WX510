@@ -169,6 +169,11 @@ class SharedMem2:
         
         Problem here, This is called multiple times, need to reset
         self.nbytes
+
+        08-Jun-26 the size of a long depends on the system.
+        for 64 bit systems it is 8, for 32 bit systems it is 4.
+        So Length on the 32 bit system is 4 bytes, and 8 on 64 bit.
+        time_t, size_t and long all follow the same issue. 
         """
         nbytes = {
             'b':1,
@@ -178,7 +183,7 @@ class SharedMem2:
             'i':4,
             'I':4,
             'f':4,
-            'l':8,
+            'l':4,
             }[format]
 
         if ((self.bytes+nbytes) > self.memory.size):
