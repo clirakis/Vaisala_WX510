@@ -372,4 +372,5 @@ class SharedMem2:
         for i in range(40):
             if ( i%10 == 0):
                 print(i,' : ')
-            print(hex(self.inb[i:i+1]),end="")
+            ival = struct.unpack('B', self.inb[i:i+1])[0]
+            print(hex(ival),end="")
