@@ -8,7 +8,7 @@ def main():
     
     for i in range(20):
          pR0.Read()
-         print("index ", i, " value: ", pR0.R0)
+         print("index ", i, " time ", pR0.LastUpdate_Time_tv_sec," value: ", pR0.R0)
          
 
 if __name__ == "__main__":
