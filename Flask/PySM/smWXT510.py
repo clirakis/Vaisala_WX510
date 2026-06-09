@@ -42,16 +42,13 @@ class smWXT510(SharedMem2):
         super().Read()
         # Need to find where the string resides. Should start here
         start = self.bytes
-        print ('start: ', start, ' maxsize: ', self.maxsize)
-        #print ('str : ', self.inb[start:])
+
         count = 0
         while ( (count < self.maxsize) and (self.inb[start+count] != 0)):
             count = count + 1
-        print(' count: ', count)
+
         self.R0 = str(self.inb[start:start+count])
         self.UnpackDone()
-        
-        print("Read:", len(self.R0), " ", self.R0)
         
     def Print(self):
         print('Filename: ', self.__Filename)
