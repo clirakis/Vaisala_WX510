@@ -41,10 +41,9 @@ class smWXT510(SharedMem2):
         """
         super().Read()
         # Need to find where the string resides. Should start here
-        # On the Pi3, no idea why this is off by 16 bytes
-        start = self.bytes + 16 
+        start = self.bytes
         print ('start: ', start, ' maxsize: ', self.maxsize)
-        print ('str : ', self.inb[start:])
+        #print ('str : ', self.inb[start:])
         count = 0
         while ( (count < self.maxsize) and (self.inb[start+count] != 0)):
             count = count + 1

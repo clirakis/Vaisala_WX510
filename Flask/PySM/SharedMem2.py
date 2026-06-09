@@ -233,12 +233,18 @@ class SharedMem2:
 
         #
         # Unpack the header information.
+        # the size of this depends on the OS 32 bit or 64 bit
+        # 
         #
         self.Length                  = self.Unpack('l')
         self.LastUpdate_Time_tv_sec  = self.Unpack('l')
         self.LastUpdate_Time_tv_nsec = self.Unpack('l')
         self.DoubleData              = self.Unpack('d')
         self.LAM                     = self.Unpack('l')
+
+        # for the 32 bit system it is padded out to 40 bytes total.
+        # only 24 have been consumed above. 
+        self.bytes = self.bytes + 16
 
         #
         # Update this if the data is new.
