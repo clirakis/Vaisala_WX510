@@ -17,8 +17,9 @@ def main():
     for i in range(5):
         if(pR0.Read()):
             print(' new data ')
-        print("index ", i, " time ", pR0.LastUpdate_Time_tv_sec," value: ", pR0.R0)
-        pwxt.Decode(pR0.R0,logfile)
+        val = pR0.R0
+        print("index ", i, " time ", pR0.LastUpdate_Time_tv_sec," value: ", val)
+        pwxt.Decode(val,logfile)
 
         time.sleep(1)
          
