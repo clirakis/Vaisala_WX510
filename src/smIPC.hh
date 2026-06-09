@@ -35,6 +35,7 @@ public:
     void ProcessCommands(void);
 
 private:
+    double       fCount;
     /**
      * Shared memory for position data. R0 message
      */

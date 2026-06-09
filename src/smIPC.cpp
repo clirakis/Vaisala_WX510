@@ -72,6 +72,8 @@ WX_IPC::WX_IPC(void) : CObject()
 
     memset(zerobuf, 0, sizeof(zerobuf));
 
+    fCount            = 0.0;
+
     /* Just a character buffer */
     pSM_R0 = new SharedMem2("R0", kWeatherSize, true);
     if (pSM_R0->CheckError())
@@ -214,7 +216,8 @@ void WX_IPC::Update(const char* message)
 	memset( toSend, 0, sizeof(toSend));
 	snprintf( toSend, sizeof(toSend),"%s", message);
 	//cout << " to send: " << toSend << endl;
-        pSM_R0->PutData(toSend);
+        pSM_R0->PutData(toSend, fCount);
+	fCount = fCount + 1.0;
 	ProcessCommands();
     }
     SET_DEBUG_STACK;
