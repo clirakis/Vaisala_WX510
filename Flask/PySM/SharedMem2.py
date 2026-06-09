@@ -241,9 +241,9 @@ class SharedMem2:
         #
         self.Length                  = self.Unpack('Q')
         self.LastUpdate_Time_tv_sec  = self.Unpack('Q')
-        self.LastUpdate_Time_tv_nsec = self.Unpack('L')
+        self.LastUpdate_Time_tv_nsec = self.Unpack('Q')
         self.DoubleData              = self.Unpack('d')
-        self.LAM                     = self.Unpack('l')
+        self.LAM                     = self.Unpack('Q')
 
         # for the 32 bit system it is padded out to 40 bytes total.
         # only 24 have been consumed above. 
