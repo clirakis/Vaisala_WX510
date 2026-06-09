@@ -81,6 +81,7 @@ class SharedMem2:
         # number of bytes in header.
         # size_t + 2 Longs + Double + bool (but rounded up.)
         # This is very machine dependent. 40 bytes + User payload
+        # FIXME, 32 vs 64
         self.Memsize = 40 + self.PayloadSize
 
         SemaphoreName = 'SEM_' + self.SM_name
@@ -194,7 +195,7 @@ class SharedMem2:
         start = self.bytes
         end   = self.bytes + nbytes
         if (self.debug):
-            print('format: ', format, ' start: ', start, ' end: ', end)
+            print('Pointer: ', self.bytes, 'format: ', format, ' start: ', start, ' end: ', end)
             
         # advance pointer
         self.bytes += nbytes
@@ -331,7 +332,7 @@ class SharedMem2:
         #
         # post pad the string
         to_send = value + str(bytes(512-len(value)))
-        #
+        # FIXME - 64 vs 32 bit systems
         self.inb   = struct.pack(format_str,
                                  512,
                                  time.clock_gettime_ns(time.CLOCK_REALTIME),
