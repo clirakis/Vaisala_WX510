@@ -259,6 +259,7 @@ class SharedMem2:
 
         if (self.debug):
             print ('--------------- SharedMem2 -----------------------')
+            self.DumpRaw()
             print ('Update: ',     dt)
             print ("bytes used: ", self.bytes)
             print ("Length: ",     self.Length)
@@ -362,3 +363,13 @@ class SharedMem2:
         if (self.debug):
             print('Write Releasing the semaphore.')
         self.semaphore.release()
+        
+    def DumpRaw(self):
+        """
+        Dump the header information.
+        """
+        print('-------------- RAW HEADER -----------------')
+        for i in range(40):
+            if ( i%10 == 0):
+                print(i,' : ')
+            print(hex(self.inb[i:i+1]),end="")
