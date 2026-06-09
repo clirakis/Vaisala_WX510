@@ -4,8 +4,9 @@ from PySM.smWXT510 import smWXT510
 
 def main():
     pR0   = smWXT510()
-    if(sys.argv[1] == 'D'):
-        pR0.debug = True
+    if(len(sys.argv)>1):
+        if(sys.argv[1] == 'D'):
+            pR0.debug = True
     
     for i in range(20):
          pR0.Read()
