@@ -185,6 +185,7 @@ class SharedMem2:
             'I':4,
             'f':4,
             'l':4,
+            'L':8,
             }[format]
 
         if ((self.bytes+nbytes) > self.memory.size):
@@ -237,8 +238,8 @@ class SharedMem2:
         # 
         #
         self.Length                  = self.Unpack('l')
-        self.LastUpdate_Time_tv_sec  = self.Unpack('l')
-        self.LastUpdate_Time_tv_nsec = self.Unpack('l')
+        self.LastUpdate_Time_tv_sec  = self.Unpack('L')
+        self.LastUpdate_Time_tv_nsec = self.Unpack('L')
         self.DoubleData              = self.Unpack('d')
         self.LAM                     = self.Unpack('l')
 
