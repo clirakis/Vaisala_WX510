@@ -240,7 +240,7 @@ class SharedMem2:
         # 
         #
         self.Length                  = self.Unpack('L')
-        self.LastUpdate_Time_tv_sec  = self.Unpack('L')
+        self.LastUpdate_Time_tv_sec  = self.Unpack('Q')
         self.LastUpdate_Time_tv_nsec = self.Unpack('L')
         self.DoubleData              = self.Unpack('d')
         self.LAM                     = self.Unpack('l')
@@ -252,20 +252,20 @@ class SharedMem2:
         #
         # Update this if the data is new.
         #
-        if (self.debug):
-            print ('Update: ', self.TimeSinceLastUpdate())
-        if self.TimeSinceLastUpdate() != 0.0:
+        dt = self.TimeSinceLastUpdate()
+        if dt != 0.0:
             self.LastRead_Time_tv_sec  = self.LastUpdate_Time_tv_sec
             self.LastRead_Time_tv_nsec = self.LastUpdate_Time_tv_nsec
-            #print ('Update: ', self.TimeSinceLastUpdate())
 
         if (self.debug):
+            print ('--------------- SharedMem2 -----------------------')
+            print ('Update: ',     dt)
             print ("bytes used: ", self.bytes)
-            print ("Length: ", self.Length)
-            print ("Sec: ",    self.LastUpdate_Time_tv_sec)
-            print ("nsec: ",   self.LastUpdate_Time_tv_nsec)
-            print ("double: ", self.DoubleData)
-            print ("bool: ",   self.LAM)
+            print ("Length: ",     self.Length)
+            print ("Sec: ",        self.LastUpdate_Time_tv_sec)
+            print ("nsec: ",       self.LastUpdate_Time_tv_nsec)
+            print ("double: ",     self.DoubleData)
+            print ("LAM bool: ",   self.LAM)
             print ('SharedMem2 debug end ============================ ')
         #time.sleep(1)
 
