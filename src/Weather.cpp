@@ -45,7 +45,7 @@ Weather* Weather::fWeather;
  * thread control for the display if selected. 
  */
 static pthread_t d_thread;
-const int NVar = 12;
+const int NVar = 14;
 
 /**
  ******************************************************************
@@ -651,18 +651,20 @@ void Weather::LogData(void)
     t *= 1.0e-9;
     t += (double) Time().tv_sec;
     
-    f5Logger->FillInternalVector(t,                  0);
-    f5Logger->FillInternalVector(WindAverage(),      1);
-    f5Logger->FillInternalVector(WindDir(),          2);
-    f5Logger->FillInternalVector(Temperature(),      3);
-    f5Logger->FillInternalVector(Humidity(),         4);
-    f5Logger->FillInternalVector(Pressure(),         5);
-    f5Logger->FillInternalVector(RainAccumulation(), 6);
-    f5Logger->FillInternalVector(RainIntensity(),    7);
-    f5Logger->FillInternalVector(RainDuration(),     8);
-    f5Logger->FillInternalVector(HailAccumulation(), 9);
-    f5Logger->FillInternalVector(HailIntensity(),   10);
-    f5Logger->FillInternalVector(HailDuration(),    11);
+    f5Logger->FillInternalVector(t,                    0);
+    f5Logger->FillInternalVector(WindAverage(),        1);
+    f5Logger->FillInternalVector(WindDir(),            2);
+    f5Logger->FillInternalVector(Temperature(),        3);
+    f5Logger->FillInternalVector(Humidity(),           4);
+    f5Logger->FillInternalVector(Pressure(),           5);
+    f5Logger->FillInternalVector(RainAccumulation(),   6);
+    f5Logger->FillInternalVector(RainIntensity(),      7);
+    f5Logger->FillInternalVector(RainDuration(),       8);
+    f5Logger->FillInternalVector(HailAccumulation(),   9);
+    f5Logger->FillInternalVector(HailIntensity(),     10);
+    f5Logger->FillInternalVector(HailDuration(),      11);
+    f5Logger->FillInternalVector(HeaterTemperature(), 12);
+    f5Logger->FillInternalVector(HeaterVoltage(),     13);
     f5Logger->Fill();
 }
 
@@ -740,7 +742,7 @@ bool Weather::OpenLogFile(void)
     SET_DEBUG_STACK;
 
     // USER TO FILL IN.
-    const char *Names = "Time:WAvg:WDAvg:Temp:Hum:Pres:RAcc:RInt:RDur:HAcc:HInt:HDir";
+    const char *Names = "Time:WAvg:WDAvg:Temp:Hum:Pres:RAcc:RInt:RDur:HAcc:HInt:HDir:HTemp:HVolt";
     CLogger *pLogger = CLogger::GetThis();
     /* Give me a file name.  */
     const char* name = fn->GetUniqueName();
