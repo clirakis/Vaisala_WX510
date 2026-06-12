@@ -695,12 +695,14 @@ void Weather::Do(void)
 
     while(fRun)
     {
-	/* Check to see if the logging interval has rolled over. */
-	if (fn->ChangeNames())
+	if (fLogging)
 	{
-	    UpdateFileName();
+	    /* Check to see if the logging interval has rolled over. */
+	    if (fn->ChangeNames())
+	    {
+		UpdateFileName();
+	    }
 	}
-
 	ReadResponse();
 	if(fLogging)
 	{
