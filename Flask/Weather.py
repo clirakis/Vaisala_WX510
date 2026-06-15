@@ -20,6 +20,7 @@ from flask import (
     )
 from flask_bootstrap import Bootstrap
 from flask_moment import Moment
+import logging
 from datetime import datetime
 import os
 import signal
@@ -56,6 +57,10 @@ def create_app(test_config=None):
     # Register handlers for SIGINT (Ctrl+C) and SIGTERM
     signal.signal(signal.SIGINT, signal_handler)
     signal.signal(signal.SIGTERM, signal_handler)
+
+    # dial back the logging
+    log = logging.getLogger('werkzeug')
+    log.setLevel(logging.ERROR)
     
     bootstrap = Bootstrap(app)
     moment    = Moment(app)
