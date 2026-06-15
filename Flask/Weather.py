@@ -67,6 +67,11 @@ def create_app(test_config=None):
     logfile.write("# ---------------------------------------------\n")
     logfile.write("# SYS-I-FILE: Weather.py \n");
     logfile.write('# SYS-I-FILE: Logfile started: '+str(datetime.utcnow())+'\n')
+    if (pR0.error == 0):
+        logfile.write("# Shared memory attached.\n")
+    else:
+        logfile.write("# Could not attach to shared memory.\n")
+        
     pwxt.SetLogfile(logfile)
 
     # Global Variable
