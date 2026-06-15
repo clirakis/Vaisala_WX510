@@ -126,18 +126,20 @@ def create_app(test_config=None):
 
     @app.route('/wx', methods=['GET','POST'])
     def wx():
-        if request.method == 'POST':
-            # POST is the form sent some data. 
-            print('Weather POST')
+        # Turn on for debugging prints. 
+        if (false):
+            if request.method == 'POST':
+                # POST is the form sent some data. 
+                print('Weather POST')
 
-            if request.form.get('refresh') == 'Refresh':
-                print("Weather do refresh")
-            else:
-                print("method unknown")
+                if request.form.get('refresh') == 'Refresh':
+                    print("Weather do refresh")
+                else:
+                    print("method unknown")
 
-        elif request.method == 'GET':
-            # GET is a give me some data
-            print('Weather GET')
+            elif request.method == 'GET':
+                # GET is a give me some data
+                print('Weather GET')
 
         if (pR0.error == 0):
             pR0.Read()
