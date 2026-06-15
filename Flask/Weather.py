@@ -127,7 +127,7 @@ def create_app(test_config=None):
     @app.route('/wx', methods=['GET','POST'])
     def wx():
         # Turn on for debugging prints. 
-        if (false):
+        if (False):
             if request.method == 'POST':
                 # POST is the form sent some data. 
                 print('Weather POST')
