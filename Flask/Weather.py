@@ -108,12 +108,12 @@ def create_app(test_config=None):
 
 
     # This gets called every time a page finishes. Not when the app ends
-    @app.teardown_appcontext
-    def teardown_db(exception):
-        # Perform cleanup operations here
-        print("Application context is ending...")
-        #logfile.write('# Program end: '+str(datetime.utcnow())+'\n')
-        #logfile.close()
+##    @app.teardown_appcontext
+##    def teardown_db(exception):
+##        # Perform cleanup operations here
+##        print("Application context is ending...")
+##        #logfile.write('# Program end: '+str(datetime.utcnow())+'\n')
+##        #logfile.close()
         
     @app.route('/user')
     def user():
