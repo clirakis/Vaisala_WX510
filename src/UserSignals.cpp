@@ -211,7 +211,7 @@ void SetSignals(void)
     /*
      * Setup a signal handler.      
      */
-    signal (SIGHUP , Terminate);   // Hangup.
+    signal (SIGHUP , UserSignal);   // Hangup.
     signal (SIGINT , Terminate);   // CTRL+C signal 
     signal (SIGKILL, Terminate);   // 
     signal (SIGQUIT, Terminate);   // 
