@@ -179,8 +179,10 @@ void UserSignal(int sig)
     case SIGUSR2:   // 12
 	logger->Log("# SIGUSR: %d\n", sig);
 	// User code here. 
-	Weather *ptr = Weather::GetThis();
-	ptr->Stop();
+	Weather::GetThis()->Stop();
+	break;
+    case SIGHUP:
+	logger->LogTime(" SIGHUP %d\n", sig);
 	break;
     }
 }
