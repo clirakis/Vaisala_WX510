@@ -159,6 +159,7 @@ def create_app(test_config=None):
         sRDuration     = '{:06.6f}'.format(pwxt.Rain_duration)
         sHAccumulation = '{:06.6f}'.format(pwxt.Hail_accumulation)
         sHDuration     = '{:06.6f}'.format(pwxt.Hail_duration)
+        fTemperature   = sTemperature*9/5 + 32
 
         return render_template('WX.html',
                                current_time=datetime.utcnow(),
@@ -172,6 +173,7 @@ def create_app(test_config=None):
                                RDuration=sRDuration,
                                HAccumulation=sHAccumulation,
                                HDuration=sHDuration,
+                               FTemperature=fTemperature,
                                )
 
 
