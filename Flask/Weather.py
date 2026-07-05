@@ -155,11 +155,11 @@ def create_app(test_config=None):
         sPressure      = '{:06.4f}'.format(pwxt.Pressure)
         sHumidity      = '{:06.6f}'.format(pwxt.Humidity)
         sSpeed         = '{:04.1f}'.format(pwxt.WindSpeed.Average)
-        sDirection     = '{:06.6f}'.format(pwxt.WindDirection.Average)
-        sRAccumulation = '{:06.6f}'.format(pwxt.Rain_accumulation)
-        sRDuration     = '{:06.6f}'.format(pwxt.Rain_duration)
-        sHAccumulation = '{:06.6f}'.format(pwxt.Hail_accumulation)
-        sHDuration     = '{:06.6f}'.format(pwxt.Hail_duration)
+        sDirection     = '{:06.1f}'.format(pwxt.WindDirection.Average)
+        sRAccumulation = '{:06.2f}'.format(pwxt.Rain_accumulation)
+        sRDuration     = '{:06.2f}'.format(pwxt.Rain_duration)
+        sHAccumulation = '{:06.2f}'.format(pwxt.Hail_accumulation)
+        sHDuration     = '{:06.2f}'.format(pwxt.Hail_duration)
 
         # 
         fTemperature   = '{:04.1f}'.format(pwxt.Temperature*9/5 + 32)
