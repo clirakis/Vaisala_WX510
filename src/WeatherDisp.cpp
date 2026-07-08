@@ -91,7 +91,7 @@ static const char *pos_strings[] = {
 static const char *help_strings[] = {
              "                          Help                       ",
              "                                                     ",
-             "  d - toggle display data (Hex codes rec'd)          ",
+             "  d - toggle display off                             ",
              "                                                     ",
              "                                                     ",
              "  h - home                                           ",

@@ -28,11 +28,11 @@ using namespace std;
 #include "CLogger.hh"
 #include "SharedMem2.hh"     // class definition for shared segment. 
 #include "smIPC.hh"
+#include "Weather.hh"
 
 // 22-Feb-26 upped command size allocation to 512
 const size_t kCommandSize  = 512;          // Bytes of command data.
 const size_t kWeatherSize  = 128;
-static char zerobuf[kCommandSize];
 
 #define DEBUG_SM 0
 /**
@@ -64,13 +64,13 @@ WX_IPC::WX_IPC(void) : CObject()
     SetName("WX_IPC");
     SetError(); // No error.
     SetDebug(0);
+    char command[kCommandSize];
+    memset(command, 0, sizeof(command));
 
     plogger->LogCommentTimestamp("IPC Initialize, shared memory.");
 
     pSM_Commands      = NULL;
     pSM_R0            = NULL;
-
-    memset(zerobuf, 0, sizeof(zerobuf));
 
     fCount            = 0.0;
 
@@ -107,7 +107,7 @@ WX_IPC::WX_IPC(void) : CObject()
 		    __FILE__,  __LINE__);
 	// Sometimes there is residual crap in the buffer that 
 	// needs clearing
-	pSM_Commands->PutData(zerobuf);
+	pSM_Commands->PutData(command);
         pSM_Commands->PutData(0.0);
     }
     SET_DEBUG_STACK;
@@ -138,6 +138,7 @@ void WX_IPC::ProcessCommands(void)
 {
     SET_DEBUG_STACK;
     CLogger *plogger  = CLogger::GetThis();
+
     if (pSM_Commands != NULL)
     {
         // number of bytes in buffer
@@ -154,33 +155,40 @@ void WX_IPC::ProcessCommands(void)
 	    plogger->Log("# Command received: %d %s\n", 
 			 (int)available, command);
 	    // Process approprately.
-#if 0
-	    if (strncmp( command, "CF", 2) == 0)
+
+	    if (strncmp( command, "RR", 2) == 0)
 	    {
-		plogger->Log("# DEBUG: Change Filename command\n");
-		GTOP::GetThis()->UpdateFileName();
-		// Now clear out the data buffer. 
-		// Otherwise the last command will stick around. 
-		pSM_Commands->PutData(zerobuf);
-		pSM_Commands->PutData(0.0);
+		plogger->Log("# DEBUG: Reset Rain command\n");
+		Weather::GetThis()->ResetPrecipitationCounter();
+		
 	    }
-	    else if (strncmp( command, "GF",2) == 0)
+	    else if (strncmp( command, "DT",2) == 0)
 	    {
-		// get the current filename. 
-		const char *filespec = pGTOP->Filespec();
-		pSM_Commands->PutData(filespec);
+		// Dump the temperature data from the ring buffer
 
 	    }
-	    else if (strncmp( command, "CM", 2) == 0)
+	    else if (strncmp( command, "DH",2) == 0)
 	    {
-		plogger->Log("# DEBUG: Marker command\n");
-		// Marker in H5 file
-		pGTOP->SetFlag(1);
+		// Dump the Humidity data from the ring buffer
+
 	    }
-#endif
+	    else if (strncmp( command, "DP",2) == 0)
+	    {
+		// Dump the Pressure data from the ring buffer
+
+	    }
+	    else if (strncmp( command, "DR",2) == 0)
+	    {
+		// Dump the Rain data from the ring buffer
+
+	    }
+
+	    // Now clear out the data buffer. 
+	    // Otherwise the last command will stick around. 
 	    available = 0.0; // Commands have been processed. 
 	    memset( command, 0, kCommandSize);
 	    pSM_Commands->PutData(available);
+	    pSM_Commands->PutData(command);
 	}
     }
     SET_DEBUG_STACK;
