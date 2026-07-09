@@ -23,6 +23,7 @@ using namespace std;
 #include <cmath>
 
 // Local Includes.
+#include "debug.h"
 #include "DataBuffer.hh"
 
 /**
@@ -47,6 +48,18 @@ using namespace std;
  */
 DataBuffer::DataBuffer (void)
 {
+    SET_DEBUG_STACK;
+    fTime        = 0L;
+    fTemperature = 0.0;
+    fPressure    = 0.0;
+    fHumidity    = 0.0;
+    fRain        = 0.0;
+}
+DataBuffer::DataBuffer (const WXT510& in) 
+{
+    SET_DEBUG_STACK;
+    fSelected    = kTEMPERATURE;
+    Fill(in);
 }
 
 /**
@@ -94,8 +107,56 @@ DataBuffer::~DataBuffer (void)
  *
  *******************************************************************
  */
-#if 0
-void* DataBuffer::function(const char *Name)
+void DataBuffer::Fill(const WXT510& in)
 {
+    SET_DEBUG_STACK;
+    fTime        = in.Time().tv_sec;
+    fTemperature = in.Temperature();
+    fPressure    = in.Pressure();
+    fHumidity    = in.Humidity();
+    fRain        = in.RainAccumulation();
 }
-#endif
+
+/**
+ ******************************************************************
+ *
+ * Function Name : ostream for DataBuffer
+ *
+ * Description :
+ *
+ * Inputs :
+ *
+ * Returns :
+ *
+ * Error Conditions :
+ * 
+ * Unit Tested on: 
+ *
+ * Unit Tested by: CBL
+ *
+ *
+ *******************************************************************
+ */
+ostream& operator<<(ostream& output, const DataBuffer &in)
+{
+    SET_DEBUG_STACK;
+
+    output << in.fTime << ",";
+    switch(in.fSelected)
+    {
+    case DataBuffer::kTEMPERATURE:
+	output << in.fTemperature;
+	break;
+    case DataBuffer::kPRESSURE:
+	output << in.fPressure;
+	break;
+    case DataBuffer::kHUMIDITY:
+	output << in.fHumidity;
+	break;
+    case DataBuffer::kRAIN:
+	output << in.fRain;
+	break;
+    }
+
+    return output;
+}

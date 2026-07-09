@@ -20,12 +20,16 @@
 #ifndef __USERPLOT_hh_
 #define __USERPLOT_hh_
 /// UserPlot documentation here. 
-
+#include <stdint.h>
+#include <vector>
+#include "DataBuffer.hh"
+#include "WXT510.hh"
 
 class UserPlot {
 public:
     /// Default Constructor
-    UserPlot();
+    UserPlot(size_t BufferSize);
+
     /// Default destructor
     ~UserPlot();
     /// UserPlot function
@@ -41,8 +45,13 @@ public:
      * Errors:
      *
      */
-    //void* function(const char *Name);
-private:
+    void Fill(const WXT510& in);
 
+    void MakeFile(DataBuffer::DataType type);
+
+private:
+    size_t                   fMaxSize;           // when to wrap. 
+    size_t                   fIndex;             // current fill point
+    std::vector<DataBuffer*> fBuffer;
 };
 #endif

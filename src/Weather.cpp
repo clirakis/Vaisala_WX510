@@ -38,6 +38,7 @@ using namespace libconfig;
 #include "SerialIO.h"
 #include "WeatherDisp.hh"
 #include "smIPC.hh"
+#include "UserPlot.hh"
 
 Weather* Weather::fWeather;
 
@@ -82,6 +83,7 @@ Weather::Weather(const char* ConfigFile) : WXT510()
     fSerialPortName = "/dev/ttyUSB1";
     fPDisplay       = NULL;
     fIPC            = NULL;
+    fPlot           = NULL;
 
     /* 
      * Set defaults for configuration file. 

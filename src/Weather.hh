@@ -25,6 +25,8 @@
 #  include "H5Logger.hh"
 #  include "filename.hh"
 #  include "WXT510.hh"
+#  include "UserPlot.hh"
+
 class Weather_Display;
 class SerialIO;
 class WX_IPC;
@@ -150,6 +152,7 @@ private:
     bool             fDisplay;
     Weather_Display* fPDisplay;
 
+    UserPlot*        fPlot;
 
     /* Private functions. ==============================  */
 
