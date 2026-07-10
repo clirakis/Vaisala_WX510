@@ -303,6 +303,7 @@ bool Weather::ReadResponse(void)
 	    /* DEBUG FIX ME LATER */
 	    /* Every 256 times dump the file for debug purposes initially */
 	    count = (count+1)%256;
+	    cout << "COUNT: " << count << endl;
 	    if (count == 0)
 	    {
 		DumpPlot(DataBuffer::kTEMPERATURE);
