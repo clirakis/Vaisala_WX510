@@ -314,7 +314,8 @@ bool Weather::ReadResponse(void)
     }
     else if (errno != 0)
     {
-	CLogger::GetThis()->LogTime("Line decode fail. %d\n", errno);
+	CLogger::GetThis()->LogTime("Line decode fail. %d %s\n", errno,
+				    strerror(errno));
 	return false;
     }
     SET_DEBUG_STACK;
