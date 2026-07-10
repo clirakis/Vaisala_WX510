@@ -138,6 +138,7 @@ void WX_IPC::ProcessCommands(void)
 {
     SET_DEBUG_STACK;
     CLogger *plogger  = CLogger::GetThis();
+    Weather *pWX      = Weather::GetThis();
 
     if (pSM_Commands != NULL)
     {
@@ -165,22 +166,22 @@ void WX_IPC::ProcessCommands(void)
 	    else if (strncmp( command, "DT",2) == 0)
 	    {
 		// Dump the temperature data from the ring buffer
-
+		pWX->DumpPlot(DataBuffer::kTEMPERATURE);
 	    }
 	    else if (strncmp( command, "DH",2) == 0)
 	    {
 		// Dump the Humidity data from the ring buffer
-
+		pWX->DumpPlot(DataBuffer::kHUMIDITY);
 	    }
 	    else if (strncmp( command, "DP",2) == 0)
 	    {
 		// Dump the Pressure data from the ring buffer
-
+		pWX->DumpPlot(DataBuffer::kPRESSURE);
 	    }
 	    else if (strncmp( command, "DR",2) == 0)
 	    {
 		// Dump the Rain data from the ring buffer
-
+		pWX->DumpPlot(DataBuffer::kRAIN);
 	    }
 
 	    // Now clear out the data buffer. 

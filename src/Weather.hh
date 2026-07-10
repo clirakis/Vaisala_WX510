@@ -63,6 +63,12 @@ public:
      */
     void Stop(void) {fRun=false;};
 
+    /*
+     * Dump the plot data. 
+     */
+    inline void DumpPlot(DataBuffer::DataType type) {
+	if (fPlot) fPlot->MakeFile(type);};
+
 
     /*!
      * Description: 
@@ -152,6 +158,7 @@ private:
     bool             fDisplay;
     Weather_Display* fPDisplay;
 
+    /* Method for preparing plots to be consumed by flask. */
     UserPlot*        fPlot;
 
     /* Private functions. ==============================  */
@@ -165,9 +172,12 @@ private:
     /* Main event loop */
     void LogData(void);
 
+    /* Process a command */
     bool Command(const string& cmd);
 
+    /* IPC for sharing weather data, in this case the actual string. */
     WX_IPC*      fIPC;
+
 
     /*!
      * Setup, the way I want it to respond

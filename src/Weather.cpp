@@ -156,6 +156,10 @@ Weather::Weather(const char* ConfigFile) : WXT510()
 	}
     }
 
+    /* 
+     * Create IPC to send data to anything, but in this
+     * case the flask app to consume.
+     */ 
     fIPC = new WX_IPC();
     if (fIPC->Error() != 0)
     {
@@ -165,6 +169,9 @@ Weather::Weather(const char* ConfigFile) : WXT510()
 	SetError(-2); 
 	return;
     }
+
+    /* Initialize the plotting routine */
+    fPlot = new UserPlot(16); /* make the buffer small initially for debug.*/
 
     /*
      * Do any setup specific to the instrument 
@@ -217,6 +224,7 @@ Weather::~Weather(void)
 	Logger->LogError(__FILE__,__LINE__, 'W', 
 			 "Failed to write config file.\n");
     }
+    delete fPlot;
     delete fIPC;
     delete fSerialIO;
 
@@ -253,6 +261,7 @@ Weather::~Weather(void)
 bool Weather::ReadResponse(void)
 {
     SET_DEBUG_STACK;
+    static size_t count = 0;
     char line[256];
     int32_t  rc;
 
@@ -265,19 +274,38 @@ bool Weather::ReadResponse(void)
 	{
 	    CLogger::GetThis()->LogTime("%s", line);
 	}
+	/* put the line into shared memory for other consumers. */
 	if(fIPC)
 	{
 	    fIPC->Update(line);
 	}
+	/* if the display is selected, show the data. */
 	if(fPDisplay)
 	{
 	    fPDisplay->WriteMsgToScreen(line);
 	}
 	if(Decode(line))
 	{
+	    /* 
+	     * Upon successful decode do the this and that and the other 
+	     * things
+	     */
 	    if(fPDisplay)
 	    {
 		fPDisplay->Update(this);
+	    }
+	    if(fLogging)
+	    {
+		LogData();
+	    }
+	    /* and finally update the plot file database */
+	    fPlot->Fill(*this);
+	    /* DEBUG FIX ME LATER */
+	    /* Every 256 times dump the file for debug purposes initially */
+	    count = (count+1)%256;
+	    if (count == 0)
+	    {
+		DumpPlot(DataBuffer::kTEMPERATURE);
 	    }
 	}
     }
@@ -294,15 +322,15 @@ bool Weather::ReadResponse(void)
  *
  * Function Name : Command
  *
- * Description :
+ * Description : Send a command to the WXT510 - manage the serial data.
  *
- * Inputs :
+ * Inputs : cmd - string to send
  *
- * Returns :
+ * Returns : true on success
  *
- * Error Conditions :
+ * Error Conditions : None at the moment
  * 
- * Unit Tested on: 
+ * Unit Tested on: 10-Jul-26
  *
  * Unit Tested by: CBL
  *
@@ -708,10 +736,6 @@ void Weather::Do(void)
 	    }
 	}
 	ReadResponse();
-	if(fLogging)
-	{
-	    LogData();
-	}
 	sleep(1);
 	count++;
     }
