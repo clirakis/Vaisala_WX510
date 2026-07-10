@@ -263,6 +263,7 @@ bool Weather::ReadResponse(void)
     SET_DEBUG_STACK;
     static size_t count = 0;
     char line[256];
+    char tmp[32];
     int32_t  rc;
 
     memset(line, 0, sizeof(line));
@@ -293,6 +294,8 @@ bool Weather::ReadResponse(void)
 	    if(fPDisplay)
 	    {
 		fPDisplay->Update(this);
+		snprintf(tmp, sizeof(tmp),"Count %d\n", count);
+		fPDisplay->WriteMsgToScreen(tmp);
 	    }
 	    if(fLogging)
 	    {
@@ -302,12 +305,11 @@ bool Weather::ReadResponse(void)
 	    fPlot->Fill(*this);
 	    /* DEBUG FIX ME LATER */
 	    /* Every 256 times dump the file for debug purposes initially */
-	    count = (count+1)%256;
-	    cout << "COUNT: " << count << endl;
 	    if (count == 0)
 	    {
 		DumpPlot(DataBuffer::kTEMPERATURE);
 	    }
+	    count = (count+1)%256;
 	}
     }
     else
