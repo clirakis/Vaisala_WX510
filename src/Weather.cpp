@@ -294,7 +294,7 @@ bool Weather::ReadResponse(void)
 	    if(fPDisplay)
 	    {
 		fPDisplay->Update(this);
-		snprintf(tmp, sizeof(tmp),"Count %d\n", count);
+		snprintf(tmp, sizeof(tmp),"Count %ld\n", count);
 		fPDisplay->WriteMsgToScreen(tmp);
 	    }
 	    if(fLogging)
@@ -312,9 +312,9 @@ bool Weather::ReadResponse(void)
 	    count = (count+1)%256;
 	}
     }
-    else
+    else if (errno != 0)
     {
-	CLogger::GetThis()->LogTime("Line decode fail. %d\n", rc);
+	CLogger::GetThis()->LogTime("Line decode fail. %d\n", errno);
 	return false;
     }
     SET_DEBUG_STACK;
