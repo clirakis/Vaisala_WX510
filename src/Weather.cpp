@@ -265,10 +265,16 @@ bool Weather::ReadResponse(void)
     char line[256];
     char tmp[32];
     int32_t  rc;
+    bool success = true;
 
     memset(line, 0, sizeof(line));
     rc = fSerialIO->Read((unsigned char *)line, sizeof(line));
-    if (rc>0)
+    if (rc == 0)
+    {
+	// no bytes to read, just return. 
+	success = false;
+    }
+    else if (rc>0)
     {
 	TimeTag();
 	if (Debug(1))
@@ -311,15 +317,16 @@ bool Weather::ReadResponse(void)
 	    }
 	    count = (count+1)%256;
 	}
+	success = true;
     }
-    else if (errno != 0)
+    if (errno != 0)
     {
 	CLogger::GetThis()->LogTime("Line decode fail. %d %s\n", errno,
 				    strerror(errno));
-	return false;
+	success = false;
     }
     SET_DEBUG_STACK;
-    return true;
+    return success;
 }
 
 /**
