@@ -48,9 +48,10 @@ using namespace std;
  *
  *******************************************************************
  */
-UserPlot::UserPlot (size_t BufferSize)
+UserPlot::UserPlot (uint32_t BufferSize)
 {
     SET_DEBUG_STACK;
+    CLogger::GetThis()->LogTime("User plot created, depth: %d\n", BufferSize);
     fMaxSize = BufferSize;
     fIndex   = 0;
 }
@@ -153,8 +154,11 @@ void UserPlot::Fill(const WXT510& in)
 void UserPlot::MakeFile(DataBuffer::DataType type)
 {
     SET_DEBUG_STACK;
+    CLogger *pLog = CLogger::GetThis();
     ofstream myplot("WXT510.PLT");
     DataBuffer *val;
+    uint32_t count = 0;
+
 
     if(myplot.is_open())
     {
@@ -176,8 +180,10 @@ void UserPlot::MakeFile(DataBuffer::DataType type)
 		myplot << val->Time() << "," << val->Rain() << endl;
 		break;
 	    }
+	    count++;
 	}
 	myplot.close();
+	pLog->LogTime("Dump plot data. Type: %d, Records: %d\n", type, count);
     }
     else
     {

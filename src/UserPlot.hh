@@ -28,7 +28,7 @@
 class UserPlot {
 public:
     /// Default Constructor
-    UserPlot(size_t BufferSize);
+    UserPlot(uint32_t BufferSize);
 
     /// Default destructor
     ~UserPlot();
@@ -50,8 +50,8 @@ public:
     void MakeFile(DataBuffer::DataType type);
 
 private:
-    size_t                   fMaxSize;           // when to wrap. 
-    size_t                   fIndex;             // current fill point
-    std::vector<DataBuffer*> fBuffer;
+    uint32_t                   fMaxSize;           // when to wrap. 
+    uint32_t                   fIndex;             // current fill point
+    std::vector<DataBuffer*>   fBuffer;
 };
 #endif

@@ -84,6 +84,7 @@ Weather::Weather(const char* ConfigFile) : WXT510()
     fPDisplay       = NULL;
     fIPC            = NULL;
     fPlot           = NULL;
+    fPlotDepth      = 32;    // 32 samples deep, default. 
 
     /* 
      * Set defaults for configuration file. 
@@ -171,7 +172,7 @@ Weather::Weather(const char* ConfigFile) : WXT510()
     }
 
     /* Initialize the plotting routine */
-    fPlot = new UserPlot(16); /* make the buffer small initially for debug.*/
+    fPlot = new UserPlot(fPlotDepth); /* make the buffer small initially for debug.*/
 
     /*
      * Do any setup specific to the instrument 
@@ -310,21 +311,22 @@ bool Weather::ReadResponse(void)
 	    /* and finally update the plot file database */
 	    fPlot->Fill(*this);
 	    /* DEBUG FIX ME LATER */
-	    /* Every 256 times dump the file for debug purposes initially */
 	    if (count == 0)
 	    {
 		DumpPlot(DataBuffer::kTEMPERATURE);
 	    }
-	    count = (count+1)%256;
+	    count = (count+1)%fPlotDepth;
 	}
 	success = true;
     }
+#if DEBUG==1
     if (errno != 0)
     {
 	CLogger::GetThis()->LogTime("Line decode fail. %d %s\n", errno,
 				    strerror(errno));
 	success = false;
     }
+#endif
     SET_DEBUG_STACK;
     return success;
 }
@@ -929,6 +931,7 @@ bool Weather::ReadConfiguration(void)
 	MM.lookupValue("Address",   address);
 	MM.lookupValue("Interval",  fUpdateInterval);
 	MM.lookupValue("Display",   fDisplay);
+	MM.lookupValue("PlotDepth", fPlotDepth);
 	SetDebug(Debug);
 	SetAddress(address);
     }
@@ -981,6 +984,7 @@ bool Weather::WriteConfiguration(void)
     MM.add("Address",   Setting::TypeInt)     = (int) Address();
     MM.add("Interval",  Setting::TypeInt)     = fUpdateInterval;
     MM.add("Display",   Setting::TypeBoolean) = fDisplay;
+    MM.add("PlotDepth", Setting::TypeInt)     = fPlotDepth;
 
     // Write out the new configuration.
     try

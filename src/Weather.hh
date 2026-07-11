@@ -178,6 +178,7 @@ private:
     /* IPC for sharing weather data, in this case the actual string. */
     WX_IPC*      fIPC;
 
+    int32_t      fPlotDepth;
 
     /*!
      * Setup, the way I want it to respond
