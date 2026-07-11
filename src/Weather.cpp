@@ -262,7 +262,7 @@ Weather::~Weather(void)
 bool Weather::ReadResponse(void)
 {
     SET_DEBUG_STACK;
-    static size_t count = 0;
+    static uint32_t count = 0;
     char line[256];
     char tmp[32];
     int32_t  rc;
@@ -301,7 +301,7 @@ bool Weather::ReadResponse(void)
 	    if(fPDisplay)
 	    {
 		fPDisplay->Update(this);
-		snprintf(tmp, sizeof(tmp),"Count %ld\n", count);
+		snprintf(tmp, sizeof(tmp),"Count %d\n", count);
 		fPDisplay->WriteMsgToScreen(tmp);
 	    }
 	    if(fLogging)
