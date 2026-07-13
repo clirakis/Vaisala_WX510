@@ -119,7 +119,6 @@ void UserPlot::Fill(const WXT510& in)
     if (fBuffer.size() < fMaxSize)
     {
 	fBuffer.push_back(val);
-	fIndex++;
     }
     else
     {
@@ -130,6 +129,7 @@ void UserPlot::Fill(const WXT510& in)
 	// Add the new entry
 	fBuffer[fIndex] = val;
     }
+    fIndex++;
 }
 /**
  ******************************************************************
