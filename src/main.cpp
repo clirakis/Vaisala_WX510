@@ -206,6 +206,10 @@ int main(int argc, char **argv)
 #endif
 	    pModule->Do();
 	}
+	else
+	{
+	    delete pModule;
+	}
 
     }
     Terminate(0);
