@@ -170,10 +170,10 @@ Weather::Weather(const char* ConfigFile) : WXT510()
 	SetError(-2); 
 	return;
     }
-
+#ifdef USERPLOT
     /* Initialize the plotting routine */
     fPlot = new UserPlot(fPlotDepth); /* make the buffer small initially for debug.*/
-
+#endif
     /*
      * Do any setup specific to the instrument 
      */
@@ -308,6 +308,7 @@ bool Weather::ReadResponse(void)
 	    {
 		LogData();
 	    }
+#ifdef USERPLOT
 	    /* and finally update the plot file database */
 	    fPlot->Fill(*this);
 	    /* DEBUG FIX ME LATER */
@@ -315,6 +316,7 @@ bool Weather::ReadResponse(void)
 	    {
 		DumpPlot(DataBuffer::kTEMPERATURE);
 	    }
+#endif
 	    count = (count+1)%fPlotDepth;
 	}
 	success = true;
