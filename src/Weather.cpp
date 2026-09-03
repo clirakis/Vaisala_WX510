@@ -85,6 +85,8 @@ Weather::Weather(const char* ConfigFile) : WXT510()
     fIPC            = NULL;
     fPlot           = NULL;
     fPlotDepth      = 32;    // 32 samples deep, default. 
+    f5Logger        = NULL;
+    fn              = NULL;
 
     /* 
      * Set defaults for configuration file. 
@@ -124,6 +126,7 @@ Weather::Weather(const char* ConfigFile) : WXT510()
 		fSerialPortName.c_str());
 	Logger->LogError(__FILE__,__LINE__,'F',msg);
 	SetError(SerialIO::BadOpen);
+	return;
     }
     else
     {
@@ -132,8 +135,6 @@ Weather::Weather(const char* ConfigFile) : WXT510()
 
     /* Do any configuration needed. */
 
-    f5Logger = NULL;
-    fn       = NULL;
     if (fLogging)
     {
 	fn = new FileName("WXT510", "h5", One_Day);
@@ -211,7 +212,7 @@ Weather::~Weather(void)
     CLogger *Logger = CLogger::GetThis();
 
     // Kill the display thread.
-    if(fDisplay)
+    if(fPDisplay)
     {
 	fPDisplay->Stop();
 	delete fPDisplay;
@@ -290,7 +291,8 @@ bool Weather::ReadResponse(void)
 	/* if the display is selected, show the data. */
 	if(fPDisplay)
 	{
-	    fPDisplay->WriteMsgToScreen(line);
+	    //fPDisplay->WriteMsgToScreen(line);
+	    fPDisplay->display_message(line);
 	}
 	if(Decode(line))
 	{
@@ -302,7 +304,8 @@ bool Weather::ReadResponse(void)
 	    {
 		fPDisplay->Update(this);
 		snprintf(tmp, sizeof(tmp),"Count %d\n", count);
-		fPDisplay->WriteMsgToScreen(tmp);
+		//fPDisplay->WriteMsgToScreen(tmp);
+		fPDisplay->display_message(tmp);
 	    }
 	    if(fLogging)
 	    {

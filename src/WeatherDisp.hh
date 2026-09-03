@@ -92,6 +92,7 @@ public:
     void WriteMsgToScreen(const char *s);
     // Return true if time to end program. 
     bool  checkKeys(void);
+    void display_message (const char *fmt, ...);
 
     /** Access the this pointer. */
     static Weather_Display* GetThis(void) {return fWeather_Display;};
@@ -100,7 +101,6 @@ public:
 private:
     void start_display(void);
     void end_display(void);
-    void display_message (const char *fmt, ...);
 
     /* Position screen stuff. */
     void display_all(const WXT510* pPW);
