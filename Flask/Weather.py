@@ -134,6 +134,8 @@ def create_app(test_config=None):
 
                 if request.form.get('refresh') == 'Refresh':
                     print("Weather do refresh")
+                elif request.form.get('refresh') == 'RainReset':
+                    print("Rain Reset")
                 else:
                     print("method unknown")
 
