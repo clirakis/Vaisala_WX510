@@ -135,7 +135,7 @@ def create_app(test_config=None):
                 logfile.write('WX POST\n')
                 if request.form.get('refresh') == 'Refresh':
                     logfile.write("Weather do refresh\n")
-                elif request.form.get('RainReset') == 'RainReset':
+                elif request.form.get('RainReset') == 'Rain Reset':
                     logfile.write('Rain Reset\n')
                 else:
                     logfile.write('Unknown command\n')
