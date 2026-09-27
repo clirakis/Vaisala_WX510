@@ -130,10 +130,7 @@ def create_app(test_config=None):
         if (False):
             if request.method == 'POST':
                 # POST is the form sent some data. 
-                print('Weather POST')
-
-                
-                logfile.write('Command ' + command + '\n')
+                logfile.write('WX POST\n')
                 if request.form.get('refresh') == 'Refresh':
                     logfile.write("Weather do refresh\n")
                 elif request.form.get('RainReset') == 'RainReset':
