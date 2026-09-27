@@ -132,14 +132,14 @@ def create_app(test_config=None):
                 # POST is the form sent some data. 
                 print('Weather POST')
 
-                command = request.form.get('refresh')
+                
                 logfile.write('Command ' + command + '\n')
-                if command == 'Refresh':
+                if request.form.get('refresh') == 'Refresh':
                     logfile.write("Weather do refresh\n")
-                elif command == 'RainReset':
+                elif request.form.get('RainReset') == 'RainReset':
                     logfile.write('Rain Reset\n')
                 else:
-                    logfile.write('Unknown command:'+str(command)+'\n')
+                    logfile.write('Unknown command\n')
 
             elif request.method == 'GET':
                 # GET is a give me some data
