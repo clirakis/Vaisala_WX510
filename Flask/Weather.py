@@ -133,6 +133,7 @@ def create_app(test_config=None):
                 print('Weather POST')
 
                 command = request.form.get('refresh')
+                logfile.write('Command ' + command + '\n')
                 if command == 'Refresh':
                     logfile.write("Weather do refresh\n")
                 elif command == 'RainReset':
