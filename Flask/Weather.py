@@ -129,7 +129,7 @@ def create_app(test_config=None):
     @app.route('/wx', methods=['GET','POST'])
     def wx():
         # Turn on for debugging prints. 
-        if (True):
+        if (False):
             if request.method == 'POST':
                 # POST is the form sent some data. 
                 logfile.write('WX POST\n')
@@ -137,6 +137,7 @@ def create_app(test_config=None):
                     logfile.write("Weather do refresh\n")
                 elif request.form.get('RainReset') == 'Rain Reset':
                     logfile.write('Rain Reset\n')
+                    COMM.write("RR")
                 else:
                     logfile.write('Unknown command\n')
 
