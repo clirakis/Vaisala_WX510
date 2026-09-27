@@ -40,6 +40,8 @@ This is a lot more clean than the way I was doing initialization!!
 logfile = open('sensor.log','w') 
 
 def signal_handler(sig, frame):
+    logfile.write('# SYS-I-FILE: signal received termination: '+str(datetime.utcnow())+'\n')
+
     print('Termination signal received! Shutting down gracefully...')
     # Close resources
     #del pwxt
@@ -127,7 +129,7 @@ def create_app(test_config=None):
     @app.route('/wx', methods=['GET','POST'])
     def wx():
         # Turn on for debugging prints. 
-        if (False):
+        if (True):
             if request.method == 'POST':
                 # POST is the form sent some data. 
                 logfile.write('WX POST\n')
@@ -140,7 +142,7 @@ def create_app(test_config=None):
 
             elif request.method == 'GET':
                 # GET is a give me some data
-                print('Weather GET')
+                logfile.write('Weather GET\n')
 
         if (pR0.error == 0):
             pR0.Read()
