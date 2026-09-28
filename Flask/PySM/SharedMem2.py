@@ -22,6 +22,7 @@
 import mmap
 import struct
 import time
+import ctypes
 from typing import NamedTuple
 # 3rd party modules
 import posix_ipc
@@ -360,9 +361,10 @@ class SharedMem2:
 ##                                 to_send.encode("utf-8"))
         # DEBUG
         format_str = 'll'
+        ns = ctypes.c_uint64(time.clock_gettime_ns(time.CLOCK_REALTIME))
         self.inb   = struct.pack(format_str,
-                                 512,
-                                 time.clock_gettime_ns(time.CLOCK_REALTIME))
+                                 512,ns
+                                 )
 
         return # DEBUG----
         print('Acquire semaphore for write.')
