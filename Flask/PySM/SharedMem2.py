@@ -347,7 +347,7 @@ class SharedMem2:
         # 4) long   nothing   - int data
         # 5) string           - Command data, in
         # 
-        format_str = 'llldl512s'
+        format_str = 'QQQdQ512s'
         #
         # post pad the string
         to_send = value + str(bytes(512-len(value)))
@@ -360,11 +360,12 @@ class SharedMem2:
 ##                                 0,
 ##                                 to_send.encode("utf-8"))
         # DEBUG
-        format_str = 'lQ'
+        format_str = 'lQQQ'
         #ns = ctypes.c_uint64(time.clock_gettime_ns(time.CLOCK_REALTIME))
         self.inb   = struct.pack(format_str,
-                                 512,time.clock_gettime_ns(time.CLOCK_REALTIME)
-                                 )
+                                 512,time.clock_gettime_ns(time.CLOCK_REALTIME),
+                                 int(time.clock_gettime(time.CLOCK_REALTIME)),
+                                 0)
 
         return # DEBUG----
         print('Acquire semaphore for write.')
