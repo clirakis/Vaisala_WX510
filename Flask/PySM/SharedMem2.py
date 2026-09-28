@@ -338,7 +338,16 @@ class SharedMem2:
         # the command buffer size is 512 bytes, I guess I have to write the
         # full thing.
         #
+        # Format
+        # long length of buffer - currently fixed, need to change
+        # long seconds
+        # long nanoseconds
+        # double length    - Double data
+        # long   nothing   - int data
+        # string           - Command data, in
+        # 
         format_str = 'llldl512s'
+        int_placeholder = 0
         #
         # post pad the string
         to_send = value + str(bytes(512-len(value)))
@@ -348,7 +357,7 @@ class SharedMem2:
                                  time.clock_gettime_ns(time.CLOCK_REALTIME),
                                  int(time.clock_gettime(time.CLOCK_REALTIME)),
                                  float(length),
-                                 0,
+                                 int_placeholder,
                                  to_send.encode("utf-8"))
         print('Acquire semaphore for write.')
         #
