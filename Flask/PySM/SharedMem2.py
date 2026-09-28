@@ -347,17 +347,16 @@ class SharedMem2:
         # string           - Command data, in
         # 
         format_str = 'llldl512s'
-        int_placeholder = 0
         #
         # post pad the string
         to_send = value + str(bytes(512-len(value)))
         # FIXME - 64 vs 32 bit systems
         self.inb   = struct.pack(format_str,
-                                 512,
+                                 int(512),
                                  time.clock_gettime_ns(time.CLOCK_REALTIME),
                                  int(time.clock_gettime(time.CLOCK_REALTIME)),
                                  float(length),
-                                 int_placeholder,
+                                 int(0),
                                  to_send.encode("utf-8"))
         print('Acquire semaphore for write.')
         #
