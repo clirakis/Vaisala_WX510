@@ -362,7 +362,7 @@ class SharedMem2:
         format_str = 'lll'
         self.inb   = struct.pack(format_str,
                                  512,
-                                 time.clock_gettime_ns(time.CLOCK_REALTIME),
+                                 int(time.clock_gettime_ns(time.CLOCK_REALTIME)),
                                  int(time.clock_gettime(time.CLOCK_REALTIME)))
 
         return # DEBUG----
