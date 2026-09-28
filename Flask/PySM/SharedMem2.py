@@ -350,6 +350,7 @@ class SharedMem2:
                                  float(length),
                                  0,
                                  to_send.encode("utf-8"))
+        print('Acquire semaphore for write.')
         #
         self.semaphore.acquire()
         # write the header info and data into the memory map
