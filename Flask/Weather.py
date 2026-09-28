@@ -136,7 +136,7 @@ def create_app(test_config=None):
                 logfile.write("Weather do refresh\n")
             elif request.form.get('RainReset') == 'Rain Reset':
                 logfile.write('Rain Reset\n')
-                COMM.Write("RR")
+                COMM.Write("RR", 2)
             else:
                 logfile.write('Unknown command\n')
 
