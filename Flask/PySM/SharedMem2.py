@@ -360,10 +360,10 @@ class SharedMem2:
 ##                                 0,
 ##                                 to_send.encode("utf-8"))
         # DEBUG
-        format_str = 'll'
-        ns = ctypes.c_uint64(time.clock_gettime_ns(time.CLOCK_REALTIME))
+        format_str = 'lQ'
+        #ns = ctypes.c_uint64(time.clock_gettime_ns(time.CLOCK_REALTIME))
         self.inb   = struct.pack(format_str,
-                                 512,ns
+                                 512,time.clock_gettime_ns(time.CLOCK_REALTIME)
                                  )
 
         return # DEBUG----
