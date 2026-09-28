@@ -360,8 +360,11 @@ class SharedMem2:
 ##                                 to_send.encode("utf-8"))
         # DEBUG
         format_str = 'l'
-        self.inb   = struct.pack(format_str,512)
-        
+        self.inb   = struct.pack(format_str,
+                                 512,
+                                 time.clock_gettime_ns(time.CLOCK_REALTIME),
+                                 int(time.clock_gettime(time.CLOCK_REALTIME)))
+
         return # DEBUG----
         print('Acquire semaphore for write.')
         #
