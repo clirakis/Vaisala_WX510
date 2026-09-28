@@ -362,7 +362,7 @@ class SharedMem2:
         format_str = 'l'
         self.inb   = struct.pack(format_str,512)
         
-        return ! DEBUG----
+        return # DEBUG----
         print('Acquire semaphore for write.')
         #
         self.semaphore.acquire()
