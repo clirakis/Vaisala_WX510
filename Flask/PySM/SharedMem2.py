@@ -339,12 +339,12 @@ class SharedMem2:
         # full thing.
         #
         # Format
-        # long length of buffer - currently fixed, need to change
-        # long seconds
-        # long nanoseconds
-        # double length    - Double data
-        # long   nothing   - int data
-        # string           - Command data, in
+        # 0) long length of buffer - currently fixed, need to change
+        # 1) long seconds
+        # 2) long nanoseconds
+        # 3) double length    - Double data
+        # 4) long   nothing   - int data
+        # 5) string           - Command data, in
         # 
         format_str = 'llldl512s'
         #
@@ -352,11 +352,11 @@ class SharedMem2:
         to_send = value + str(bytes(512-len(value)))
         # FIXME - 64 vs 32 bit systems
         self.inb   = struct.pack(format_str,
-                                 int(512),
+                                 512,
                                  time.clock_gettime_ns(time.CLOCK_REALTIME),
                                  int(time.clock_gettime(time.CLOCK_REALTIME)),
                                  float(length),
-                                 int(0),
+                                 0,
                                  to_send.encode("utf-8"))
         print('Acquire semaphore for write.')
         #
